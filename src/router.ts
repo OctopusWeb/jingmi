@@ -1,6 +1,13 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/Home.vue';
+import GetGoodsInfo from './views/GetGoodsInfo.vue';
+import FansList from './views/FansList.vue';
+import GroupList from './views/GroupList.vue';
+import MessageList from './views/MessageList.vue';
+import Merchant from './views/Merchant.vue';
+import Advertising from './views/Advertising.vue';
+import UserList from './views/UserList.vue';
 
 Vue.use(Router);
 
@@ -12,12 +19,39 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
+      path: '/getGoodsInfo',
+      name: 'getGoodsInfo',
+      component: GetGoodsInfo,
+    },
+    {
+      path: '/fansList',
+      name: 'fansList',
+      component: FansList,
+    },
+    {
+      path: '/groupList',
+      name: 'groupList',
+      component: GroupList,
+    },
+    {
+      path: '/messageList',
+      name: 'messageList',
+      component: MessageList,
+    },
+    {
+      path: '/merchant',
+      name: 'merchant',
+      component: Merchant,
+    },
+    {
+      path: '/advertising',
+      name: 'advertising',
+      component: Advertising,
+    },
+    {
+      path: '/userList',
+      name: 'userList',
+      component: UserList,
     },
   ],
 });
