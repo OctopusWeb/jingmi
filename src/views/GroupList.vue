@@ -20,7 +20,10 @@
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商">
-        <el-input v-model="searchValue.keyword" placeholder="输入赞助商名称"></el-input>
+        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+          <el-option v-for="(item, index) in merchantList" :key="index" 
+          :label="item.aliasName" :value="item.id"></el-option>
+        </el-select>
       </el-form-item>
       <el-button type="primary" size="small" @click="getGroupList">查询</el-button>
       <el-button type="primary" size="small" @click="createGroupHandler">新建分组</el-button>
@@ -101,9 +104,9 @@ import net from '@/net/index';
 })
 export default class GroupList extends Vue {
   private dialogGroup = false;
-  private page = 0;
+  private merchantList: any = [];
   private searchValue = {
-    keyword: '',
+    sponsorId: '',
     current: 0,
     size: 10,
   };
@@ -119,6 +122,16 @@ export default class GroupList extends Vue {
   };
   private mounted() {
     this.getGroupList();
+    this.getMerchant();
+  }
+  private getMerchant() {
+    net.base.getMerchant({size: 500, current: 0}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.merchantList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private getGroupList() {
     net.base.getGroup(this.searchValue).then((data: any) => {

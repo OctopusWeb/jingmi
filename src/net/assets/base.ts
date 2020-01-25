@@ -9,7 +9,11 @@ export async function logout() {
 
 /* 礼品接口 */
 export async function getGoodsList(payload: any) {
-  return await post(`/web/api/productDelivery/getPageList`, {current: 0, size: 10});
+  return await post(`/web/api/productDelivery/getPageList`, payload);
+}
+
+export async function getGoodsAll() {
+  return await get(`/web/api/goods/all`, null);
 }
 
 /* 用户管理 */
@@ -59,6 +63,7 @@ export default {
   login,
   logout,
   getGoodsList,
+  getGoodsAll,
   getUserList,
   addUser,
   deletedUser,

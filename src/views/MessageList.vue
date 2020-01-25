@@ -26,7 +26,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="对象选择">
-          <el-select v-model="searchValue.name" placeholder="设备" size="small">
+          <el-select clearable v-model="searchValue.name" placeholder="设备" size="small">
             <el-option label="区域一" value="shanghai"></el-option>
             <el-option label="区域二" value="beijing"></el-option>
           </el-select>
@@ -42,7 +42,7 @@
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商">
-        <el-select v-model="searchValue.sponsor" placeholder="赞助商" size="small">
+        <el-select clearable v-model="searchValue.sponsor" placeholder="赞助商" size="small">
           <el-option label="区域一" value="shanghai"></el-option>
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>

@@ -20,8 +20,8 @@
         </el-form-item>
         <el-form-item label="备注">
           <el-radio-group v-model="userInfo.roleId">
-            <el-radio label="1">管理员</el-radio>
-            <el-radio label="2">赞助商</el-radio>
+            <el-radio :label="1">管理员</el-radio>
+            <el-radio :label="2">赞助商</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -139,7 +139,7 @@ export default class UserList extends Vue {
     remark: '',
     username: '',
     roleId: 1,
-  }
+  };
   private searchValue = {
     name: '',
   };
@@ -155,15 +155,12 @@ export default class UserList extends Vue {
       }
     });
   }
-  private handleCurrentChange(page: number) {
-    console.log(page);
-  }
-  private deletedHandler(row: any){
+  private deletedHandler(row: any) {
     net.base.deletedUser(row.id).then((data: any) => {
       if (data.data.code === 200) {
           this.$message({
             message: '删除成功',
-            type: 'success'
+            type: 'success',
           });
           this.getUserList();
         } else {
@@ -171,15 +168,15 @@ export default class UserList extends Vue {
         }
     });
   }
-  private userInfoHandler(row: any) {
-    net.base.userInfo(row.id).then((data: any) => {
-      if (data.data.code === 200) {
-        console.log(data.data.data);
-      } else {
-        this.$message.error(data.data.msg);
-      }
-    });
-  }
+  // private userInfoHandler(row: any) {
+  //   net.base.userInfo(row.id).then((data: any) => {
+  //     if (data.data.code === 200) {
+  //       console.log(data.data.data);
+  //     } else {
+  //       this.$message.error(data.data.msg);
+  //     }
+  //   });
+  // }
   private updateHandler(row: any) {
     this.dialogMessage = true;
     this.userInfo = row;
@@ -194,18 +191,18 @@ export default class UserList extends Vue {
       username: '',
       roleId: 1,
       sponsorId: '1',
-    }
+    };
   }
   private addUserhandler() {
     if (this.userInfo.nickname && this.userInfo.nickname.length >= 2 &&
-    this.userInfo.password && this.userInfo.password.length >= 2 && 
+    this.userInfo.password && this.userInfo.password.length >= 2 &&
     this.userInfo.username && this.userInfo.username.length >= 2
     ) {
       net.base.addUser(this.userInfo).then((data: any) => {
         if (data.data.code === 200) {
           this.$message({
             message: this.userInfo.id || this.userInfo.id !== '' ? '修改成功' : '添加成功',
-            type: 'success'
+            type: 'success',
           });
           this.dialogMessage = false;
           this.getUserList();

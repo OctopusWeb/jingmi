@@ -2,53 +2,44 @@
   <div class="GetGoodsInfo">
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商">
-        <el-select v-model="searchValue.sponsor" placeholder="赞助商" size="small">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+          <el-option v-for="(item, index) in merchantList" :key="index" 
+          :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="赞助商品">
-        <el-select v-model="searchValue.goods" placeholder="赞助商品" size="small">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+        <el-select clearable v-model="searchValue.productId" placeholder="赞助商品" size="small">
+          <el-option v-for="(item, index) in goodsAll" :key="index"
+          :label="item.goodsName" :value="item.goodsId"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="投放城市">
+      <!-- <el-form-item label="投放城市">
         <el-select v-model="searchValue.city" placeholder="投放城市" size="small">
           <el-option label="区域一" value="shanghai"></el-option>
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="投放路线">
-        <el-select v-model="searchValue.city" placeholder="投放路线" size="small">
+        <el-select v-model="searchValue.busRoute" placeholder="投放路线" size="small">
           <el-option label="区域一" value="shanghai"></el-option>
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="设备">
-        <el-select v-model="searchValue.city" placeholder="设备" size="small">
+        <el-select v-model="searchValue.deviceNo" placeholder="设备" size="small">
           <el-option label="区域一" value="shanghai"></el-option>
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="状态">
-        <el-select v-model="searchValue.status" placeholder="状态" size="small">
+        <el-select clearable v-model="searchValue.status" placeholder="状态" size="small">
           <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="投放时间">
-        <el-date-picker
-          size="small"
-          v-model="searchValue.city"
-          type="daterange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期">
-        </el-date-picker>
-      </el-form-item>
       <el-form-item label="领取时间">
         <el-date-picker
-          v-model="searchValue.city"
+          @change="changeHandler"
+          v-model="time"
           size="small"
           type="daterange"
           range-separator="至"
@@ -57,53 +48,59 @@
         </el-date-picker>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="searchHandler" size="small">查询</el-button>
+        <el-button type="primary" @click="getGoodsList" size="small">查询</el-button>
       </el-form-item>
     </el-form>
-    <div class="goodsInfo">
+    <!-- <div class="goodsInfo">
       <p>全部:<span>2000</span>个</p>
       <p>已投放:<span>2000</span>个</p>
       <p>已领取:<span>2000</span>个</p>
-    </div>
+    </div> -->
     <el-table
-      :data="goodsTable"
+      :data="goodsTable.records"
       stripe
       style="width: 100%">
       <el-table-column
-        prop="a"
+        prop="aliasName"
         label="赞助商">
       </el-table-column>
       <el-table-column
-        prop="b"
+        prop="productName"
         label="赞助商品">
       </el-table-column>
       <el-table-column
-        prop="c"
+        prop="city"
         label="投放城市">
       </el-table-column>
       <el-table-column
-        prop="d"
+        prop="busRoute"
         label="投放路线">
       </el-table-column>
       <el-table-column
-        prop="a"
+        prop="deviceNo"
         label="货格号">
       </el-table-column>
       <el-table-column
-        prop="b"
-        label="领取时间" width="250">
+        prop="phone"
+        label="手机号" width="150">
       </el-table-column>
       <el-table-column
-        prop="c"
-        label="领取人" width="250">
+        prop="status"
+        label="状态" width="150">
+        <template slot-scope="scope">
+          {{statusList[scope.row.status].label}}
+        </template>
+      </el-table-column>
+      <el-table-column
+        prop="nickname"
+        label="领取人" width="150">
       </el-table-column>
     </el-table>
     <el-pagination
-      @current-change="handleCurrentChange"
-      :current-page.sync="page"
+      :current-page.sync="searchValue.current"
       :page-size="10"
       layout="prev, pager, next, jumper"
-      :total="1000">
+      :total="Number(goodsTable.total)">
     </el-pagination>
   </div>
 </template>
@@ -140,46 +137,64 @@ import net from '@/net/index';
   components: {},
 })
 export default class GetGoodsInfo extends Vue {
-  private page = 0;
+  private goodsAll = [];
   private statusList = [
     {value: 0, label: '初始化'},
     {value: 1, label: '成功'},
     {value: 2, label: '失败'},
   ];
+  private time = [];
+  private merchantList: any = [];
   private searchValue = {
-    sponsor: '',
-    goods: '',
+    sponsorId: '',
+    productId: '',
     city: '',
-    companyId: undefined,
-    deviceNo: undefined,
-    gmtCreate: undefined,
-    gmtModified: undefined,
-    id: undefined,
-    status: undefined,
+    deviceNo: '',
+    status: '',
+    deliveryTimeEnd: '',
+    deliveryTimeStart: '',
+    size: 10,
+    current: 0,
   };
-  private goodsTable = [{
-    a: 'a',
-    b: 'b',
-    c: 'c',
-    d: 'd',
-  }];
+  private goodsTable = {
+    total: 0,
+    records: [],
+  };
   private mounted() {
     this.getGoodsList();
+    this.getMerchant();
+    this.getGoodsAll();
+  }
+  private changeHandler(value: string[]) {
+    this.searchValue.deliveryTimeStart = value[0];
+    this.searchValue.deliveryTimeEnd = value[1];
   }
   private getGoodsList() {
-    net.base.getGoodsList({}).then((data: any) => {
+    net.base.getGoodsList(this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
-        
+        this.goodsTable = data.data.data;
       } else {
         this.$message.error(data.data.msg);
       }
     })
   }
-  private searchHandler(){
-    console.log(this.searchValue);
+  private getMerchant() {
+    net.base.getMerchant({size: 500, current: 0}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.merchantList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
-  private handleCurrentChange(page: number) {
-    console.log(page);
+  private getGoodsAll() {
+    net.base.getGoodsAll().then((data: any) => {
+      if (data.data.code === 200) {
+        this.goodsAll = data.data.data;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
 }
 </script>
