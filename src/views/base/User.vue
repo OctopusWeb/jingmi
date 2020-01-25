@@ -4,7 +4,7 @@
     <div class="userInfo">
       <i class="el-icon-s-custom"></i>
       <p class="userName">用户名</p>
-      <span>退出登录</span>
+      <span @click="logout">退出登录</span>
     </div>
   </div>
 </template>
@@ -71,13 +71,13 @@
 </style>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import net from '@/net/index';
 
 @Component({
   components: {},
 })
 export default class User extends Vue {
   private menuList: any = {
-    home: '首页',
     getGoodsInfo: '领取详情',
     fansList: '粉丝管理',
     groupList: '粉丝分组',
@@ -88,6 +88,18 @@ export default class User extends Vue {
   };
   get menuname() {
     return this.$store.state.menuname;
+  }
+  private logout() {
+    net.base.logout().then((data: any) => {
+      if (data.data.code === 200) {
+        this.$store.dispatch('setUserInfo', {type: -1});
+        window.localStorage["username"] = '';
+        window.localStorage["password"] = '';
+        window.localStorage["token"] = '';
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    })
   }
 }
 </script>

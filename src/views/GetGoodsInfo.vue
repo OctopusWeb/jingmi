@@ -32,9 +32,8 @@
         </el-select>
       </el-form-item>
       <el-form-item label="状态">
-        <el-select v-model="searchValue.city" placeholder="状态" size="small">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+        <el-select v-model="searchValue.status" placeholder="状态" size="small">
+          <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="投放时间">
@@ -135,16 +134,28 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import net from '@/net/index';
 
 @Component({
   components: {},
 })
 export default class GetGoodsInfo extends Vue {
   private page = 0;
+  private statusList = [
+    {value: 0, label: '初始化'},
+    {value: 1, label: '成功'},
+    {value: 2, label: '失败'},
+  ];
   private searchValue = {
     sponsor: '',
     goods: '',
     city: '',
+    companyId: undefined,
+    deviceNo: undefined,
+    gmtCreate: undefined,
+    gmtModified: undefined,
+    id: undefined,
+    status: undefined,
   };
   private goodsTable = [{
     a: 'a',
@@ -152,6 +163,18 @@ export default class GetGoodsInfo extends Vue {
     c: 'c',
     d: 'd',
   }];
+  private mounted() {
+    this.getGoodsList();
+  }
+  private getGoodsList() {
+    net.base.getGoodsList({}).then((data: any) => {
+      if (data.data.code === 200) {
+        
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    })
+  }
   private searchHandler(){
     console.log(this.searchValue);
   }

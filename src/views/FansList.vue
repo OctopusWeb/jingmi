@@ -65,7 +65,7 @@
       <p>女性:<span>2000</span>个</p>
     </div>
     <el-table
-      :data="goodsTable"
+      :data="fanList.records"
       stripe
       style="width: 100%">
       <el-table-column
@@ -105,11 +105,10 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      @current-change="handleCurrentChange"
-      :current-page.sync="page"
+      :current-page.sync="searchValue.current"
       :page-size="10"
       layout="prev, pager, next, jumper"
-      :total="1000">
+      :total="fanList.total">
     </el-pagination>
   </div>
 </template>
@@ -150,6 +149,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import net from '@/net/index';
 
 @Component({
   components: {},
@@ -161,15 +161,27 @@ export default class FansList extends Vue {
     sponsor: '',
     goods: '',
     city: '',
+    size: 10,
+    current: 0,
   };
-  private goodsTable = [{
-    a: 'a',
-    b: 'b',
-    c: 'c',
-    d: 'd',
-  }];
+  private fanList = {
+    total: 0,
+    records: [],
+  };
+  private mounted() {
+    this.getFanList();
+  }
   private searchHandler(){
     console.log(this.searchValue);
+  }
+  private getFanList() {
+    net.base.getFanList(this.searchValue).then((data: any) => {
+      if (data.data.code === 200) {
+        this.fanList = data.data.data;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private handleCurrentChange(page: number) {
     console.log(page);

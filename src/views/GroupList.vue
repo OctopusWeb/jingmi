@@ -5,57 +5,58 @@
       class="dialog"
       :visible.sync="dialogGroup"
       width="450px">
-      <el-form :inline="true" :model="searchValue" class="demo-form-inline">
+      <el-form :inline="true" :model="createGroup" class="demo-form-inline">
         <el-form-item label="分组名称">
-          <el-input v-model="searchValue.name"></el-input>
+          <el-input v-model="createGroup.groupName"></el-input>
         </el-form-item>
         <el-form-item label="备注">
-          <el-input v-model="searchValue.name"></el-input>
+          <el-input v-model="createGroup.remark"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogGroup = false">取 消</el-button>
-        <el-button type="primary" @click="changeGroup">确 定</el-button>
+        <el-button type="primary" @click="addGroup">确 定</el-button>
       </span>
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商">
-        <el-select v-model="searchValue.sponsor" placeholder="赞助商" size="small">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
-        </el-select>
+        <el-input v-model="searchValue.keyword" placeholder="输入赞助商名称"></el-input>
       </el-form-item>
-      <el-button type="primary" size="small" @click="createGroup">新建分组</el-button>
+      <el-button type="primary" size="small" @click="getGroupList">查询</el-button>
+      <el-button type="primary" size="small" @click="createGroupHandler">新建分组</el-button>
     </el-form>
     <el-table
-      :data="goodsTable"
+      :data="groupList.records"
       stripe
       style="width: 100%">
       <el-table-column
-        prop="a"
-        label="序号">
+        prop="id"
+        label="序号" width="100">
       </el-table-column>
       <el-table-column
-        prop="b"
+        prop="groupName"
         label="分组名称">
       </el-table-column>
       <el-table-column
-        prop="c"
+        prop="remark"
         label="备注">
+      </el-table-column>
+        <el-table-column
+        prop="sponsorName"
+        label="赞助商名称">
       </el-table-column>
       <el-table-column
         prop="c"
         label="操作" width="250">
         <template slot-scope="scope">
-          <a @click="settingHandler(scope.row)">修改</a>
+          <a @click="updataHandler(scope.row)">修改</a>
           <a @click="settingHandler(scope.row)">删除</a>
           <a @click="settingHandler(scope.row)">推送营销短信</a>
         </template>
       </el-table-column>
     </el-table>
     <el-pagination
-      @current-change="handleCurrentChange"
-      :current-page.sync="page"
+      :current-page.sync="searchValue.current"
       :page-size="10"
       layout="prev, pager, next, jumper"
       :total="1000">
@@ -93,6 +94,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import net from '@/net/index';
 
 @Component({
   components: {},
@@ -101,16 +103,31 @@ export default class GroupList extends Vue {
   private dialogGroup = false;
   private page = 0;
   private searchValue = {
-    name: '',
+    keyword: '',
+    current: 0,
+    size: 10,
   };
-  private goodsTable = [{
-    a: 'a',
-    b: 'b',
-    c: 'c',
-    d: 'd',
-  }];
-  private searchHandler(){
-    console.log(this.searchValue);
+  private createGroup: any = {
+    id: undefined,
+    groupName: '',
+    remark: '',
+    sponsorId: '2',
+  }
+  private groupList = {
+    total: 0,
+    records: [],
+  };
+  private mounted() {
+    this.getGroupList();
+  }
+  private getGroupList() {
+    net.base.getGroup(this.searchValue).then((data: any) => {
+      if (data.data.code === 200) {
+        this.groupList = data.data.data;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private handleCurrentChange(page: number) {
     console.log(page);
@@ -118,11 +135,31 @@ export default class GroupList extends Vue {
   private settingHandler(row: any){
     console.log(row)
   }
-  private changeGroup() {
-    this.dialogGroup = false;
-    console.log('change');
+  private addGroup() {
+    net.base.addGroup(this.createGroup).then((data: any) => {
+      if (data.data.code === 200) {
+        this.dialogGroup = false;
+        this.getGroupList();
+        this.$message({
+          message: this.createGroup.id || this.createGroup.id !== '' ? '修改成功' : '添加成功',
+          type: 'success'
+        });
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
-  private createGroup() {
+  private createGroupHandler() {
+    this.createGroup = {
+      id: undefined,
+      groupName: '',
+      remark: '',
+      sponsorId: '2',
+    }
+    this.dialogGroup = true;
+  }
+  private updataHandler(row: any) {
+    this.createGroup = row;
     this.dialogGroup = true;
   }
 }

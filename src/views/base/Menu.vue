@@ -47,7 +47,6 @@ import { Component, Vue } from 'vue-property-decorator';
 export default class Menu extends Vue {
   private active = 'home';
   private menuList = [
-    {name: '首页', path: 'home', icon: 'el-icon-s-home'},
     {name: '领取详情', path: 'getGoodsInfo', icon: 'el-icon-s-goods'},
     {name: '粉丝管理', path: 'fansList', icon: 'el-icon-star-on'},
     {name: '粉丝分组', path: 'groupList', icon: 'el-icon-s-grid'},

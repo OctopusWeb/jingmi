@@ -1,45 +1,78 @@
 <template>
   <div class="UserList">
-    <el-button type="primary" size="small" @click="createGroup">新增用户</el-button>
+    <el-dialog
+      :title="userInfo.id ? '编辑用户' : '新建用户'"
+      class="dialog"
+      :visible.sync="dialogMessage"
+      width="450px">
+      <el-form :inline="true" :model="userInfo" class="demo-form-inline">
+        <el-form-item label="用户名">
+          <el-input v-model="userInfo.username" placeholder="2-10位中英文"></el-input>
+        </el-form-item>
+        <el-form-item label="昵称">
+          <el-input v-model="userInfo.nickname" placeholder="2-10位英文"></el-input>
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input show-password v-model="userInfo.password" placeholder="请输入密码"></el-input>
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-input type="textarea" v-model="userInfo.remark" placeholder="请输入备注"></el-input>
+        </el-form-item>
+        <el-form-item label="备注">
+          <el-radio-group v-model="userInfo.roleId">
+            <el-radio label="1">管理员</el-radio>
+            <el-radio label="2">赞助商</el-radio>
+          </el-radio-group>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogMessage = false">取 消</el-button>
+        <el-button type="primary" @click="addUserhandler">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-button type="primary" size="small" @click="createUser">新增用户</el-button>
     <el-table
-      :data="goodsTable"
+      :data="userList.records"
       stripe
       style="width: 100%">
       <el-table-column
-        prop="a"
-        label="序号">
+        prop="id"
+        label="序号" width="100">
       </el-table-column>
       <el-table-column
-        prop="b"
+        prop="nickname"
+        label="昵称">
+      </el-table-column>
+      <el-table-column
+        prop="username"
         label="用户名">
       </el-table-column>
       <el-table-column
-        prop="c"
-        label="密码">
+        prop="remark"
+        label="备注">
       </el-table-column>
       <el-table-column
-        prop="c"
-        label="权限">
-      </el-table-column>
-      <el-table-column
-        prop="c"
-        label="状态">
-      </el-table-column>
-      <el-table-column
-        prop="c"
-        label="操作" width="250">
+        prop="roleId"
+        label="类型">
         <template slot-scope="scope">
-          <a @click="settingHandler(scope.row)">修改</a>
-          <a @click="settingHandler(scope.row)">删除</a>
+          {{scope.row.roleId === '1' ? '管理员' : '赞助商'}}
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="操作" width="200">
+        <template slot-scope="scope">
+          <a @click="updateHandler(scope.row)">修改</a>
+          <a @click="deletedHandler(scope.row)">删除</a>
+          <!-- <a @click="updateHandler(scope.row)">详情</a> -->
         </template>
       </el-table-column>
     </el-table>
     <el-pagination
       @current-change="handleCurrentChange"
-      :current-page.sync="page"
+      :current-page.sync="current"
       :page-size="10"
       layout="prev, pager, next, jumper"
-      :total="1000">
+      :total="Number(userList.total)">
     </el-pagination>
   </div>
 </template>
@@ -87,36 +120,102 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import net from '@/net/index';
 
 @Component({
   components: {},
 })
 export default class UserList extends Vue {
   private dialogMessage = false;
-  private page = 0;
+  private current = 0;
+  private userList = {
+    records: [],
+    total: 0,
+  };
+  private userInfo: any = {
+    id: undefined,
+    nickname: '',
+    password: '',
+    remark: '',
+    username: '',
+    roleId: 1,
+  }
   private searchValue = {
     name: '',
   };
-  private goodsTable = [{
-    a: 'a',
-    b: 'b',
-    c: 'c',
-    d: 'd',
-  }];
-  private searchHandler(){
-    console.log(this.searchValue);
+  private mounted() {
+    this.getUserList();
+  }
+  private getUserList() {
+    net.base.getUserList({size: 10, current: this.current}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.userList = data.data.data;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private handleCurrentChange(page: number) {
     console.log(page);
   }
-  private settingHandler(row: any){
-    console.log(row)
+  private deletedHandler(row: any){
+    net.base.deletedUser(row.id).then((data: any) => {
+      if (data.data.code === 200) {
+          this.$message({
+            message: '删除成功',
+            type: 'success'
+          });
+          this.getUserList();
+        } else {
+          this.$message.error(data.data.msg);
+        }
+    });
   }
-  private changeGroup() {
-    this.dialogMessage = false;
+  private userInfoHandler(row: any) {
+    net.base.userInfo(row.id).then((data: any) => {
+      if (data.data.code === 200) {
+        console.log(data.data.data);
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
-  private createGroup() {
+  private updateHandler(row: any) {
     this.dialogMessage = true;
+    this.userInfo = row;
+  }
+  private createUser() {
+    this.dialogMessage = true;
+    this.userInfo = {
+      id: undefined,
+      nickname: '',
+      password: '',
+      remark: '',
+      username: '',
+      roleId: 1,
+      sponsorId: '1',
+    }
+  }
+  private addUserhandler() {
+    if (this.userInfo.nickname && this.userInfo.nickname.length >= 2 &&
+    this.userInfo.password && this.userInfo.password.length >= 2 && 
+    this.userInfo.username && this.userInfo.username.length >= 2
+    ) {
+      net.base.addUser(this.userInfo).then((data: any) => {
+        if (data.data.code === 200) {
+          this.$message({
+            message: this.userInfo.id || this.userInfo.id !== '' ? '修改成功' : '添加成功',
+            type: 'success'
+          });
+          this.dialogMessage = false;
+          this.getUserList();
+        } else {
+          this.$message.error(data.data.msg);
+        }
+      });
+    } else {
+      this.$message.error('请完善信息');
+    }
   }
 }
 </script>
