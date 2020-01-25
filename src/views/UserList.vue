@@ -20,8 +20,8 @@
         </el-form-item>
         <el-form-item label="备注">
           <el-radio-group v-model="userInfo.roleId">
-            <el-radio :label="1">管理员</el-radio>
-            <el-radio :label="2">赞助商</el-radio>
+            <el-radio label="1">管理员</el-radio>
+            <el-radio label="2">赞助商</el-radio>
           </el-radio-group>
         </el-form-item>
       </el-form>
@@ -68,7 +68,6 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      @current-change="handleCurrentChange"
       :current-page.sync="current"
       :page-size="10"
       layout="prev, pager, next, jumper"
@@ -127,6 +126,7 @@ import net from '@/net/index';
 })
 export default class UserList extends Vue {
   private dialogMessage = false;
+  private merchantList: any = [];
   private current = 0;
   private userList = {
     records: [],
@@ -138,13 +138,14 @@ export default class UserList extends Vue {
     password: '',
     remark: '',
     username: '',
-    roleId: 1,
+    roleId: '1',
   };
   private searchValue = {
     name: '',
   };
   private mounted() {
     this.getUserList();
+    this.getMerchant();
   }
   private getUserList() {
     net.base.getUserList({size: 10, current: this.current}).then((data: any) => {
@@ -189,8 +190,8 @@ export default class UserList extends Vue {
       password: '',
       remark: '',
       username: '',
-      roleId: 1,
-      sponsorId: '1',
+      roleId: '1',
+      sponsorId: '',
     };
   }
   private addUserhandler() {
@@ -213,6 +214,15 @@ export default class UserList extends Vue {
     } else {
       this.$message.error('请完善信息');
     }
+  }
+  private getMerchant() {
+    net.base.getMerchant({size: 500, current: 0}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.merchantList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
 }
 </script>

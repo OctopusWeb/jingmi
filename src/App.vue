@@ -81,6 +81,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import Menu from '@/views/base/Menu.vue';
 import User from '@/views/base/User.vue';
 import net from '@/net/index';
+import instance from '@/net/common'
 
 @Component({
   components: { Menu, User },
@@ -105,6 +106,7 @@ export default class App extends Vue {
         }
         this.$store.dispatch('setUserInfo', demo);
         window.localStorage["token"] = JSON.stringify(data.data.data);
+        instance.instance.defaults.headers.common['token'] = data.data.data;
         window.localStorage["username"] = this.loginInfo.username;
         window.localStorage["password"] = this.loginInfo.password;
         this.$message({

@@ -1,7 +1,46 @@
 <template>
   <div class="Merchant">
     <el-dialog
-      title="新建推送"
+      title="详细信息"
+      class="dialog2"
+      :visible.sync="showInfo"
+      width="30%">
+      <div class="row">
+        <p>序号:</p><span>{{info.id}}</span>
+      </div>
+      <div class="row">
+        <p>赞助商:</p><span>{{info.aliasName}}</span>
+      </div>
+      <div class="row">
+        <p>分组名:</p><span>{{info.groupName}}</span>
+      </div>
+      <div class="row">
+        <p>昵称:</p><span>{{info.nickname}}</span>
+      </div>
+      <div class="row">
+        <p>手机号:</p><span>{{info.phone}}</span>
+      </div>
+      <div class="row">
+        <p>性别:</p><span>{{info.sex === 1 ? '男' : '女'}}</span>
+      </div>
+      <div class="row">
+        <p>国家:</p><span>{{info.country}}</span>
+      </div>
+      <div class="row">
+        <p>省:</p><span>{{info.province}}</span>
+      </div>
+      <div class="row">
+        <p>市:</p><span>{{info.city}}</span>
+      </div>
+      <div class="row">
+        <p>礼品:</p><span>{{info.productName}}</span>
+      </div>
+      <div class="row">
+        <p>时间:</p><span>{{info.deliveryTime}}</span>
+      </div>
+    </el-dialog>
+    <el-dialog
+      title="商户"
       class="dialog"
       :visible.sync="dialogMessage"
       width="500px">
@@ -19,7 +58,7 @@
           <el-input v-model="createValue.contactPhone"></el-input>
         </el-form-item>
         <el-form-item label="地址">
-          <v-distpicker @province="province" @city="city" @area="area"></v-distpicker>
+          <v-distpicker :placeholders="placeholders" @province="province" @city="city" @area="area"></v-distpicker>
         </el-form-item>
         <el-form-item label="详细地址">
           <el-input v-model="createValue.companyAddress"></el-input>
@@ -32,7 +71,10 @@
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商">
-        <el-input v-model="searchValue.keyword" placeholder="输入赞助商名称"></el-input>
+        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+          <el-option v-for="(item, index) in merchantList2" :key="index" 
+          :label="item.aliasName" :value="item.id"></el-option>
+        </el-select>
       </el-form-item>
       <el-button type="primary" size="small" @click="getMerchant">查询</el-button>
       <el-button type="primary" size="small" @click="createGroup">新增商户</el-button>
@@ -65,16 +107,16 @@
         prop="c"
         label="赞助商品" width="100">
         <template slot-scope="scope">
-          <a @click="settingHandler(scope.row)">查看</a>
+          <a @click="settingHandler(scope.row)">编辑</a>
         </template>
       </el-table-column>
       <el-table-column
         prop="c"
         label="操作" width="250">
         <template slot-scope="scope">
-          <a @click="settingHandler(scope.row)">修改</a>
-          <a @click="settingHandler(scope.row)">删除</a>
-          <a @click="settingHandler(scope.row)">查看详情</a>
+          <a @click="updateHandler(scope.row)">修改</a>
+          <a @click="deletedHandler(scope.row)">删除</a>
+          <!-- <a @click="infoHandler(scope.row)">查看详情</a> -->
         </template>
       </el-table-column>
     </el-table>
@@ -102,6 +144,20 @@
       span{
         color: #5cb87a;
       }
+    }
+  }
+  .dialog2{
+    .el-select{
+      width: 100%;
+    }
+    .row{
+      line-height: 24px;
+    }
+    p{
+      display: inline-block;
+      margin-right: 10px;
+      width: 75px;
+      text-align: right;
     }
   }
   .dialog{
@@ -138,11 +194,14 @@ import net from '@/net/index';
 })
 export default class Merchant extends Vue {
   private dialogMessage = false;
+  private merchantList2: any = [];
+  private showInfo = false;
+  private info = {};
   private merchantList = {
     total: 0,
     records: [],
   };
-  private createValue = {
+  private createValue: any = {
     aliasName: '',
     companyName: '',
     contactName: '',
@@ -154,17 +213,18 @@ export default class Merchant extends Vue {
     isDeleted: 0,
   }
   private searchValue = {
-    keyword: '',
+    sponsorId: '',
     size: 10,
     current: 0,
   };
   private placeholders = {
-    province: '------- 省 --------',
-    city: '--- 市 ---',
-    area: '--- 区 ---',
+    province: '',
+    city: '',
+    area: '',
   }
   private mounted() {
     this.getMerchant();
+    this.getMerchant2();
   }
   private province(companyProvince: any) {
     this.createValue.companyProvince = companyProvince.value;
@@ -179,7 +239,12 @@ export default class Merchant extends Vue {
     net.base.addMerchant(this.createValue).then((data: any) => {
       if (data.data.code === 200) {
         this.getMerchant();
-        // this.merchantList = data.data.data;
+        this.dialogMessage = false;
+        this.$message({
+          message: this.createValue.id || this.createValue.id !== '' ? '修改成功' : '添加成功',
+          // message: '添加成功',
+          type: 'success'
+        });
       } else {
         this.$message.error(data.data.msg);
       }
@@ -194,16 +259,61 @@ export default class Merchant extends Vue {
       }
     });
   }
-  private handleCurrentChange(page: number) {
-    console.log(page);
+    private getMerchant2() {
+    net.base.getMerchant({size: 500, current: 0}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.merchantList2 = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private settingHandler(row: any){
     console.log(row)
   }
-  private changeGroup() {
-    this.dialogMessage = false;
+  private infoHandler(row: any) {
+    this.showInfo = true;
+    this.info = row;
+  }
+  private updateHandler(row: any) {
+    this.createValue = row;
+    this.placeholders = {
+      province: row.companyProvince,
+      city: row.companyCity,
+      area: row.companyDistrict,
+    }
+    this.dialogMessage = true;
+  }
+  private deletedHandler(id: number) {
+    net.base.deletedMerchant(id).then((data: any) => {
+      if (data.data.code === 200) {
+        this.getMerchant();
+        this.$message({
+          message: '删除成功',
+          type: 'success'
+        });
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private createGroup() {
+    this.createValue = {
+      aliasName: '',
+      companyName: '',
+      contactName: '',
+      contactPhone: '',
+      companyProvince: '',
+      companyCity: '',
+      companyDistrict: '',
+      companyAddress: '',
+      isDeleted: 0,
+    }
+    this.placeholders = {
+      province: '',
+      city: '',
+      area: '',
+    }
     this.dialogMessage = true;
   }
 }

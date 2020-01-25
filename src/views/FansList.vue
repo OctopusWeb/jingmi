@@ -1,13 +1,49 @@
 <template>
   <div class="FansList">
     <el-dialog
+      title="详细信息"
+      class="dialog"
+      :visible.sync="showInfo"
+      width="30%">
+      <div class="row">
+        <p>赞助商:</p><span>{{info.aliasName}}</span>
+      </div>
+      <div class="row">
+        <p>分组名:</p><span>{{info.groupName}}</span>
+      </div>
+      <div class="row">
+        <p>昵称:</p><span>{{info.nickname}}</span>
+      </div>
+      <div class="row">
+        <p>手机号:</p><span>{{info.phone}}</span>
+      </div>
+      <div class="row">
+        <p>性别:</p><span>{{info.sex === 1 ? '男' : '女'}}</span>
+      </div>
+      <div class="row">
+        <p>国家:</p><span>{{info.country}}</span>
+      </div>
+      <div class="row">
+        <p>省:</p><span>{{info.province}}</span>
+      </div>
+      <div class="row">
+        <p>市:</p><span>{{info.city}}</span>
+      </div>
+      <div class="row">
+        <p>礼品:</p><span>{{info.productName}}</span>
+      </div>
+      <div class="row">
+        <p>时间:</p><span>{{info.deliveryTime}}</span>
+      </div>
+    </el-dialog>
+    <el-dialog
       title="更改分组"
       class="dialog"
       :visible.sync="dialogGroup"
       width="30%">
-        <el-select v-model="searchValue.sponsor" placeholder="赞助商" size="small">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+        <el-select clearable v-model="changeGroupObj.groupId" placeholder="分组" size="small">
+          <el-option  v-for="(item, index) in groupList" :key="index"
+           :label="item.groupName" :value="item.id"></el-option>
         </el-select>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogGroup = false">取 消</el-button>
@@ -21,12 +57,12 @@
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="城市">
+      <!-- <el-form-item label="城市">
         <el-select clearable v-model="searchValue.city" placeholder="城市" size="small">
           <el-option label="区域一" value="shanghai"></el-option>
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="性别">
         <el-select clearable v-model="searchValue.sex" placeholder="性别" size="small">
           <el-option label="男" :value="1"></el-option>
@@ -41,8 +77,8 @@
       </el-form-item>
       <el-form-item label="分组">
         <el-select clearable v-model="searchValue.groupId" placeholder="分组" size="small">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+          <el-option  v-for="(item, index) in groupList" :key="index"
+           :label="item.groupName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="领取时间">
@@ -87,8 +123,8 @@
         prop="groupId"
         label="分组">
         <template slot-scope="scope">
-          <span>{{scope.row.groupId}}</span>
-          <a @click="changeGroupHanlder(scope.row)">更改</a>
+          <span>{{scope.row.groupName}}</span>
+          <a style="margin-left: 10px" @click="changeGroupHanlder(scope.row)">更改</a>
         </template>
       </el-table-column>
       <el-table-column
@@ -98,7 +134,7 @@
         label="操作" width="250">
         <template slot-scope="scope">
           <a @click="settingHandler(scope.row)">推送营销短信</a>
-          <a @click="settingHandler(scope.row)">详情</a>
+          <a @click="infoHandler(scope.row)">详情</a>
         </template>
       </el-table-column>
     </el-table>
@@ -118,6 +154,15 @@
   .dialog{
     .el-select{
       width: 100%;
+    }
+    .row{
+      line-height: 24px;
+    }
+    p{
+      display: inline-block;
+      margin-right: 10px;
+      width: 75px;
+      text-align: right;
     }
   }
   a{
@@ -156,6 +201,10 @@ export default class FansList extends Vue {
   private time = [];
   private merchantList: any = [];
   private dialogGroup = false;
+  private showInfo = false;
+  private info = {};
+  private groupList = [];
+  private changeGroupObj: any = {};
   private searchValue: any = {
     sponsorId: undefined,
     city: undefined,
@@ -175,6 +224,7 @@ export default class FansList extends Vue {
   private mounted() {
     this.getFanList();
     this.getMerchant();
+    this.getGroupList();
   }
   private changeHandler(value: string[]) {
     this.searchValue.deliveryTimeStart = value[0];
@@ -192,24 +242,51 @@ export default class FansList extends Vue {
       }
     });
   }
-  private handleCurrentChange(page: number) {
-    console.log(page);
-  }
   private settingHandler(row: any){
     console.log(row)
   }
+  private infoHandler(row: any) {
+    this.showInfo = true;
+    this.info = row;
+  }
   private changeGroupHanlder(row: any) {
-    console.log(row);
+    this.changeGroupObj = row;
     this.dialogGroup = true;
   }
   private changeGroup() {
     this.dialogGroup = false;
-    console.log('change');
+    const data = {
+      groupId: this.changeGroupObj.groupId,
+      sponsorId: this.changeGroupObj.sponsorId,
+      subscriberId: this.changeGroupObj.subscriberId
+    }
+    net.base.updateGroup(data).then((data: any) => {
+      if (data.data.code === 200) {
+        this.getFanList();
+        this.merchantList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private getMerchant() {
     net.base.getMerchant({size: 500, current: 0}).then((data: any) => {
       if (data.data.code === 200) {
         this.merchantList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getValueByObj(id: number) {
+    return this.groupList.filter((item: any) => {
+      return item.id === id;
+    })
+  }
+  private getGroupList() {
+    net.base.getGroup({size: 500, current: 0}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.groupList = data.data.data.records;
       } else {
         this.$message.error(data.data.msg);
       }

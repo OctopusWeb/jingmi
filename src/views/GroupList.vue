@@ -12,6 +12,12 @@
         <el-form-item label="备注">
           <el-input v-model="createGroup.remark"></el-input>
         </el-form-item>
+        <el-form-item label="赞助商">
+          <el-select clearable v-model="createGroup.sponsorId" placeholder="赞助商" size="small">
+            <el-option v-for="(item, index) in merchantList" :key="index" 
+            :label="item.aliasName" :value="item.id"></el-option>
+          </el-select>
+          </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogGroup = false">取 消</el-button>
@@ -53,7 +59,7 @@
         label="操作" width="250">
         <template slot-scope="scope">
           <a @click="updataHandler(scope.row)">修改</a>
-          <a @click="settingHandler(scope.row)">删除</a>
+          <a @click="deletedHandler(scope.row.id)">删除</a>
           <a @click="settingHandler(scope.row)">推送营销短信</a>
         </template>
       </el-table-column>
@@ -115,6 +121,7 @@ export default class GroupList extends Vue {
     groupName: '',
     remark: '',
     sponsorId: '2',
+    isDeleted: 0,
   }
   private groupList = {
     total: 0,
@@ -142,11 +149,21 @@ export default class GroupList extends Vue {
       }
     });
   }
-  private handleCurrentChange(page: number) {
-    console.log(page);
-  }
   private settingHandler(row: any){
     console.log(row)
+  }
+  private deletedHandler(id: number) {
+    net.base.deletedGroup(id).then((data: any) => {
+      if (data.data.code === 200) {
+        this.getGroupList();
+        this.$message({
+          message: '删除成功',
+          type: 'success'
+        });
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private addGroup() {
     net.base.addGroup(this.createGroup).then((data: any) => {
@@ -167,7 +184,8 @@ export default class GroupList extends Vue {
       id: undefined,
       groupName: '',
       remark: '',
-      sponsorId: '2',
+      sponsorId: '',
+      isDeleted: 0,
     }
     this.dialogGroup = true;
   }

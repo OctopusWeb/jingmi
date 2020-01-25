@@ -1,13 +1,11 @@
 import axios from 'axios';
+const token = localStorage.token;
 
-const instance = axios.create({
+export const instance = axios.create({
   baseURL: getBaseUrl(),
   timeout: 180000,
   withCredentials: true,
-  headers: { 'Content-Type': 'application/json',
-    // 'token': localStorage.token,
-    'token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJ3ZWIiLCJpc3MiOiJtc2JveC13ZWIiLCJleHAiOjE1Nzk5MzM3NTAsImlhdCI6MTU3OTkzMDE1MCwianRpIjoiMDIwMDg3NzYyNjE0NDcxYzg3Y2U1NGRhNzE4MmI0MzEiLCJ1c2VybmFtZSI6ImFkbWluIn0.nxNdbNUS0l_82XwA62Bo3vUABivgAZLboT8BLViqjQQ',
-  },
+  headers: { 'Content-Type': 'application/json'},
   responseType: 'json',
   transformResponse: [(data) => {
     if (!data) {
@@ -55,4 +53,5 @@ export default {
   post,
   put,
   deleted,
+  instance,
 };

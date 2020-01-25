@@ -39,12 +39,25 @@ export async function getMerchant(payload: any) {
   return await post(`/web/api/sponsor/getPageList`, payload);
 }
 export async function addMerchant(payload: any) {
-  return await post(`/web/api/sponsor/add`, payload);
+  if (payload.id === '' || !payload.id) {
+    return await post(`/web/api/sponsor/add`, payload);
+  } else {
+    return await post(`/web/api/sponsor/update`, payload);
+  }
+}
+export async function deletedMerchant(id: any) {
+  return await post(`/web/api/sponsor/delete`, {id});
 }
 
 /* 粉丝分组 */
 export async function getGroup(payload: any) {
   return await post(`/web/api/sponsorSubscriberGroup/getPageList`, payload);
+}
+export async function deletedGroup(id: any) {
+  return await post(`/web/api/sponsorSubscriberGroup/delete`, {id});
+}
+export async function updateGroup(payload: any) {
+  return await post(`/web/api/sponsorSubscriber/update`, payload);
 }
 export async function addGroup(payload: any) {
   if (payload.id === '' || !payload.id) {
@@ -70,7 +83,10 @@ export default {
   userInfo,
   getMerchant,
   addMerchant,
+  deletedMerchant,
   getGroup,
+  updateGroup,
+  deletedGroup,
   addGroup,
   getFanList,
 };
