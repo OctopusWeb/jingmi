@@ -100,13 +100,10 @@ export default class App extends Vue {
   private login() {
     net.base.login(this.loginInfo).then((data: any) => {
       if (data.data.code === 200) {
-        const demo = {
-          username: 'admin',
-          type: 1,
-        }
-        this.$store.dispatch('setUserInfo', demo);
-        window.localStorage["token"] = JSON.stringify(data.data.data);
-        instance.instance.defaults.headers.common['token'] = data.data.data;
+        const result = data.data.data;
+        this.$store.dispatch('setUserInfo', result);
+        window.localStorage["token"] = JSON.stringify(result.token);
+        instance.instance.defaults.headers.common['token'] = result.token;
         window.localStorage["username"] = this.loginInfo.username;
         window.localStorage["password"] = this.loginInfo.password;
         this.$message({

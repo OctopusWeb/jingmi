@@ -1,6 +1,71 @@
 <template>
   <div class="Advertising">
     <el-dialog
+      title="设置广告位"
+      class="dialog2"
+      :visible.sync="showAdvertisingImage"
+      width="400px">
+      <el-form :inline="true" :model="createGoodsValue" style="margin-bottom: -50px">
+        <el-form-item label="广告标语">
+          <el-input size="mini" placeholder="广告标语" v-model="createGoodsValue.slogan"></el-input>
+        </el-form-item>
+        <el-form-item label="链接地址">
+          <el-input size="mini" placeholder="连接地址" v-model="createGoodsValue.refUrl"></el-input>
+        </el-form-item>
+         <el-form-item label="广告图片">
+          <el-upload
+            action="http://49.233.92.117:8001/upload/"
+            :headers="headers"
+            :limit="1"
+            :file-list="fileList">
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" size="small" @click="createGoodsValueHanlder">确认</el-button>
+      </span>
+    </el-dialog>
+     <el-dialog
+      title="广告位设置"
+      class="dialog"
+      :visible.sync="showAdvertising"
+      width="50%">
+      <template>
+        <el-table
+          :data="advertisingList"
+          stripe
+          style="width: 100%">
+          <el-table-column
+            prop="id"
+            label="序号"
+            width="100">
+          </el-table-column>
+          <el-table-column
+            prop="imageUrl"
+            label="图片">
+            <template slot-scope="scope">
+              <img style="height: 100px" :src="scope.row.imageUrl">
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="slogan"
+            label="广告语">
+          </el-table-column>
+          <el-table-column
+            prop="refUrl"
+            label="链接">
+          </el-table-column>
+          <el-table-column
+        label="操作" width="100">
+        <template slot-scope="scope">
+          <a @click="goodsUpdateHandler(scope.row)">修改</a>
+        </template>
+      </el-table-column>
+        </el-table>
+      </template>
+     </el-dialog>
+    <el-dialog
       title="规则设置"
       class="dialog"
       :visible.sync="dialogMessage"
@@ -9,9 +74,9 @@
         <el-form-item label="规则名称">
           <el-input v-model="createValue.name" size="small"></el-input>
         </el-form-item>
-
       <el-form-item label="赞助商">
-        <el-select clearable v-model="createValue.sponsorId" placeholder="赞助商" size="small">
+        <el-select @change="sponsorHandler" clearable
+        v-model="createValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
@@ -19,7 +84,7 @@
       <el-form-item label="赞助商品">
         <el-select clearable v-model="createValue.productId" placeholder="赞助商品" size="small">
           <el-option v-for="(item, index) in goodsAll" :key="index"
-          :label="item.goodsName" :value="item.goodsId"></el-option>
+          :label="item.productName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="优先级">
@@ -33,40 +98,48 @@
     </el-dialog>
     <el-button type="primary" size="small" @click="createGroup">新增广告规则</el-button>
     <el-table
-      :data="advertisinglist.records"
+      :data="advertisinglist.records || [,,]"
       stripe
       style="width: 100%">
       <el-table-column
-        prop="a"
+        prop="id"
         label="序号">
       </el-table-column>
       <el-table-column
-        prop="b"
+        prop="name"
         label="规则名称">
       </el-table-column>
       <el-table-column
-        prop="c"
+        prop="priority"
         label="赞助商">
       </el-table-column>
       <el-table-column
-        prop="c"
+        prop="productId"
         label="礼品">
       </el-table-column>
       <el-table-column
-        prop="c"
+        prop="priority"
         label="优先级">
       </el-table-column>
       <el-table-column
-        prop="c"
+        prop="isActive"
         label="状态">
+        <template slot-scope="scope">
+          {{scope.row.isActive !== 0 ? '已启用' : '已禁用'}}
+          <a @click="isOpenHandler(scope.row)">{{scope.row.isActive === 0 ? '启用' : '禁用'}}</a>
+        </template>
       </el-table-column>
       <el-table-column
-        prop="c"
-        label="操作" width="250">
+        label="广告位">
         <template slot-scope="scope">
-          <a @click="settingHandler(scope.row)">修改</a>
-          <a @click="settingHandler(scope.row)">删除</a>
-          <a @click="settingHandler(scope.row)">查看详情</a>
+          <a @click="getPosterItem(scope.row.id)">设置</a>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="操作" width="150">
+        <template slot-scope="scope">
+          <a @click="updateHanlder(scope.row)">修改</a>
+          <a @click="deletedHandler(scope.row)">删除</a>
         </template>
       </el-table-column>
     </el-table>
@@ -84,6 +157,20 @@
 .Advertising{
   padding: 20px;
   text-align: left;
+  .dialog2{
+    .el-input{
+      width: 250px;
+    }
+    .row{
+      line-height: 24px;
+    }
+    p{
+      display: inline-block;
+      margin-right: 10px;
+      width: 75px;
+      text-align: right;
+    }
+  }
   .goodsInfo{
     width: 100%;
     float: left;
@@ -129,15 +216,31 @@ import net from '@/net/index';
   components: {},
 })
 export default class Advertising extends Vue {
+  private fileList = [];
   private dialogMessage = false;
+  private showAdvertising = false;
+  private showAdvertisingImage = false
   private page = 0;
+  private selectedId: any;
   private merchantList: any = [];
   private goodsAll = [];
+  private advertisingList = [];
+  private createGoodsValue = {
+    id: undefined,
+    imageUrl: undefined,
+    refUrl: undefined,
+    slogan: undefined,
+    sponsorPosterId: undefined,
+  }
   private createValue: any = {
     name: undefined,
     priority: undefined,
     productId: undefined,
     sponsorId: undefined,
+    isActive: 1,
+  }
+  private headers = {
+    token: localStorage.token,
   }
   private searchValue: any = {
     current: 0,
@@ -151,7 +254,6 @@ export default class Advertising extends Vue {
   private mounted() {
     this.getSponsorPosterList();
     this.getMerchant();
-    this.getGoodsAll();
   }
   private getSponsorPosterList(){
     net.base.getSponsorPosterList(this.searchValue).then((data: any) => {
@@ -171,10 +273,10 @@ export default class Advertising extends Vue {
       }
     });
   }
-  private getGoodsAll() {
-    net.base.getGoodsAll().then((data: any) => {
+  private sponsorHandler(id: number) {
+    net.base.getSponsorProduct({size: 500, current: 0, sponsorId: id}).then((data: any) => {
       if (data.data.code === 200) {
-        this.goodsAll = data.data.data;
+        this.goodsAll = data.data.data.records;
       } else {
         this.$message.error(data.data.msg);
       }
@@ -190,17 +292,96 @@ export default class Advertising extends Vue {
         this.dialogMessage = false;
         this.getSponsorPosterList();
         this.$message({
-          message: this.createValue.id || this.createValue.id !== '' ? '修改成功' : '添加成功',
+          message: this.createValue.id && this.createValue.id !== '' ? '修改成功' : '添加成功',
           type: 'success'
         });
       } else {
         this.$message.error(data.data.msg);
       }
     });
-    console.log(row)
   }
   private createGroup() {
     this.dialogMessage = true;
+    this.createValue = {
+      name: undefined,
+      priority: undefined,
+      productId: undefined,
+      sponsorId: undefined,
+      isActive: 1,
+    }
+  }
+  private updateHanlder(row: any) {
+    this.dialogMessage = true;
+    this.createValue = {
+      id: row.id,
+      name: row.name,
+      priority: row.priority,
+      productId: row.productId,
+      sponsorId: row.sponsorId,
+      isActive: 1,
+    }
+  }
+  private deletedHandler(row: any) {
+    const id = row.id;
+    net.base.deletedAdvertising(id).then((data: any) => {
+      if (data.data.code === 200) {
+        this.getSponsorPosterList();
+        this.$message({
+          message: '删除成功',
+          type: 'success'
+        });
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private isOpenHandler(row: any) {
+    net.base.isOpenHandler(row.id, row.isActive === 0).then((data: any) => {
+      if (data.data.code === 200) {
+        this.getSponsorPosterList();
+        this.$message({
+          message: '修改成功',
+          type: 'success'
+        });
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getPosterItem(id: any) {
+    this.selectedId = id;
+    net.base.getPosterItem({size: 500, current: 0, sponsorPosterId: id}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.showAdvertising = true;
+        this.advertisingList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private goodsUpdateHandler(row: any) {
+    this.showAdvertisingImage = true;
+    this.createGoodsValue = {
+      id: row.id,
+      imageUrl: row.imageUrl,
+      refUrl: row.refUrl,
+      slogan: row.slogan,
+      sponsorPosterId: row.sponsorPosterId,
+    }
+  }
+  private createGoodsValueHanlder(row: any) {
+    net.base.addSponsorItemPoster(this.createGoodsValue).then((data: any) => {
+      if (data.data.code === 200) {
+        this.getPosterItem(this.selectedId);
+        this.$message({
+          message: '修改成功',
+          type: 'success'
+        });
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+    console.log(row);
   }
 }
 </script>

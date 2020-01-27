@@ -18,7 +18,7 @@
         <p>手机号:</p><span>{{info.phone}}</span>
       </div>
       <div class="row">
-        <p>性别:</p><span>{{info.sex === 1 ? '男' : '女'}}</span>
+        <p>性别:</p><span>{{info.sex == 1 ? '男' : '女'}}</span>
       </div>
       <div class="row">
         <p>地址:</p><span>{{info.country + info.province + info.city}}</span>
@@ -59,8 +59,8 @@
       </el-form-item> -->
       <el-form-item label="性别">
         <el-select clearable v-model="searchValue.sex" placeholder="性别" size="small">
-          <el-option label="男" :value="1"></el-option>
-          <el-option label="女" :value="2"></el-option>
+          <el-option label="男" value="1"></el-option>
+          <el-option label="女" value="2"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="昵称">
@@ -106,7 +106,7 @@
         prop="sex"
         label="性别">
         <template slot-scope="scope">
-          <span>{{scope.row.sex === 1 ? '男' : '女'}}</span>
+          <span>{{scope.row.sex == 1 ? '男' : '女'}}</span>
         </template>
       </el-table-column>
       <el-table-column

@@ -95,13 +95,37 @@ export async function getSponsorPosterList(payload: any) {
   return await post(`/web/api/sponsorPoster/getPageList`, payload);
 }
 export async function addSponsorPoster(payload: any) {
-  return await post(`/web/api/sponsorPoster/add`, payload);
+  if (payload.id === '' || !payload.id) {
+    return await post(`/web/api/sponsorPoster/add`, payload);
+  } else {
+    return await post(`/web/api/sponsorPoster/update`, payload);
+  }
 }
 export async function getAdvertisingList(payload: any) {
   return await post(`/sponsorPosterItem/getPageList`, payload);
 }
 export async function addAdvertising(payload: any) {
   return await post(`/sponsorPosterItem/add`, payload);
+}
+export async function deletedAdvertising(id: number) {
+  return await post(`/web/api/sponsorPoster/delete`, {id});
+}
+export async function isOpenHandler(id: number, isOpen: boolean) {
+  if (isOpen) {
+    return await post(`/web/api/sponsorPoster/active`, {id});
+  } else {
+    return await post(`/web/api/sponsorPoster/inactive`, {id});
+  }
+}
+export async function getPosterItem(payload: any) {
+  return await post(`/sponsorPosterItem/getPageList`, payload);
+}
+export async function addSponsorItemPoster(payload: any) {
+  if (payload.id === '' || !payload.id) {
+    return await post(`/web/api/sponsorPoster/add`, payload);
+  } else {
+    return await post(`/sponsorPosterItem/update`, payload);
+  }
 }
 
 
@@ -133,6 +157,10 @@ export default {
   addAdvertising,
   getSponsorPosterList,
   addSponsorPoster,
+  deletedAdvertising,
+  isOpenHandler,
+  getPosterItem,
+  addSponsorItemPoster,
 };
 
 
