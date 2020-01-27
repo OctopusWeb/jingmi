@@ -5,98 +5,118 @@
       class="dialog"
       :visible.sync="dialogMessage"
       width="450px">
-      <el-form :inline="true" :model="searchValue" class="demo-form-inline">
+      <el-form :inline="true" :model="createValue" class="demo-form-inline">
+      <el-form-item label="赞助商">
+        <el-select clearable v-model="createValue.sponsorId" placeholder="赞助商" size="small">
+          <el-option v-for="(item, index) in merchantList" :key="index" 
+          :label="item.aliasName" :value="item.id"></el-option>
+        </el-select>
+      </el-form-item>
         <el-form-item label="推送类型">
-          <el-radio-group v-model="searchValue.name">
-            <el-radio label="及时推送"></el-radio>
-            <el-radio label="定时推送"></el-radio>
+          <el-radio-group v-model="createValue.deliveryType">
+            <el-radio label="0">及时推送</el-radio>
+            <el-radio label="1">定时推送</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="推送时间">
+        <el-form-item label="推送时间" v-if="createValue.deliveryType === '1'">
           <el-date-picker
-            v-model="searchValue.name"
+            v-model="createValue.deliveryTime"
             type="datetime"
             placeholder="选择日期时间">
           </el-date-picker>
         </el-form-item>
         <el-form-item label="推送对象">
-          <el-radio-group v-model="searchValue.name">
-            <el-radio label="个人"></el-radio>
-            <el-radio label="组"></el-radio>
+          <el-radio-group v-model="createValue.recipientsVo.type" @change="typeHandler">
+            <el-radio label="0">个人</el-radio>
+            <el-radio label="1">组</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="对象选择">
-          <el-select clearable v-model="searchValue.name" placeholder="设备" size="small">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+          <el-select clearable v-model="createValue.recipientsVo.ids" multiple
+           placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '0'">
+            <el-option v-for="(item, index) in fanList" :key="index"
+            :label="item.nickname" :value="item.deliveryId"></el-option>
+          </el-select>
+          <el-select clearable v-model="createValue.recipientsVo.ids" multiple
+          placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '1'">
+            <el-option v-for="(item, index) in groupList" :key="index"
+            :label="item.groupName" :value="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="推送内容">
-          <el-input type="textarea" v-model="searchValue.name"></el-input>
+          <el-input type="textarea" v-model="createValue.content"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogMessage = false">取 消</el-button>
-        <el-button type="primary" @click="changeGroup">确 定</el-button>
+        <el-button type="primary" @click="addMessageList">确 定</el-button>
       </span>
     </el-dialog>
-    <el-form :inline="true" :model="searchValue" class="demo-form-inline">
+   <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商">
-        <el-select clearable v-model="searchValue.sponsor" placeholder="赞助商" size="small">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
+        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+          <el-option v-for="(item, index) in merchantList" :key="index" 
+          :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
-      <el-button type="primary" size="small" @click="createGroup">新增推送任务</el-button>
+      <el-button type="primary" size="small" @click="getMessageList">查询</el-button>
+      <el-button type="primary" size="small" @click="createMessageHandler">新建推送任务</el-button>
     </el-form>
-    <div class="goodsInfo">
-      <p>全部:<span>2000</span>个</p>
-      <p>成功:<span>2000</span>个</p>
-      <p>失败:<span>2000</span>个</p>
-      <p>待推送:<span>2000</span>个</p>
-    </div>
     <el-table
-      :data="goodsTable"
+      :data="messageList.records"
       stripe
       style="width: 100%">
       <el-table-column
-        prop="a"
-        label="短信流水号">
+        prop="deliveryNo"
+        label="短信流水号"
+        width="200">
       </el-table-column>
       <el-table-column
-        prop="b"
-        label="推送类型">
-      </el-table-column>
-      <el-table-column
-        prop="c"
+        prop="recipientsVo"
         label="推送对象(用户/分组)">
+        <template slot-scope="scope">
+          {{scope.row.recipientsVo.type == '0' ? '个人:' : '组:'}}
+          {{getValueById(scope.row.recipientsVo.ids, scope.row.recipientsVo.type)}}
+        </template>
       </el-table-column>
       <el-table-column
-        prop="c"
+        prop="deliveryTime"
         label="推送时间">
       </el-table-column>
       <el-table-column
-        prop="c"
+        prop="content"
         label="推送内容">
       </el-table-column>
-       <el-table-column
-        prop="c"
-        label="状态">
-      </el-table-column>
       <el-table-column
-        prop="c"
-        label="操作" width="250">
+        prop="deliveryType"
+        label="推送类型"
+        width="100">
         <template slot-scope="scope">
-          <a @click="settingHandler(scope.row)">查看详情</a>
+          {{type[scope.row.deliveryType]}}
         </template>
       </el-table-column>
+       <el-table-column
+        prop="status"
+        label="状态" width="100">
+        <template slot-scope="scope">
+          {{status[scope.row.status]}}
+        </template>
+      </el-table-column>
+      <!-- <el-table-column
+        prop="deliveryType"
+        label="推送类型"
+        width="100">
+        <template slot-scope="scope">
+          <a @click="settingHandler(scope.row)">详情</a>
+        </template>
+      </el-table-column> -->
     </el-table>
     <el-pagination
-      @current-change="handleCurrentChange"
       :current-page.sync="page"
+      @current-change="currentChange"
       :page-size="10"
       layout="prev, pager, next, jumper"
-      :total="1000">
+      :total="Number(messageList.total)">
     </el-pagination>
   </div>
 </template>
@@ -144,6 +164,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import net from '@/net/index';
 
 @Component({
   components: {},
@@ -151,28 +172,116 @@ import { Component, Vue } from 'vue-property-decorator';
 export default class MessageList extends Vue {
   private dialogMessage = false;
   private page = 0;
-  private searchValue = {
-    name: '',
+  private messageList = [];
+  private type = ['及时推送', '定时推送'];
+  private status = ['未发送', '发送成功', '发送失败'];
+  private fanList = [];
+  private groupList = [];
+  private merchantList: any = {
+    total: 0,
+    records: [],
   };
-  private goodsTable = [{
-    a: 'a',
-    b: 'b',
-    c: 'c',
-    d: 'd',
-  }];
-  private searchHandler(){
-    console.log(this.searchValue);
+  private createValue: any = {
+    deliveryType: '0',
+    deliveryTime: undefined,
+    recipientsVo: {
+      type: '0',
+      ids: [],
+    },
+    content: undefined,
+    status: 0,
   }
-  private handleCurrentChange(page: number) {
-    console.log(page);
+  private searchValue: any = {
+    sponsorId: undefined,
+    current: 0,
+    size: 10,
+  };
+  private mounted() {
+    this.getMessageList();
+    this.getMerchant();
+    this.getFanList();
+    this.getGroupList();
+    const id = Number(<string> this.$route.query.id);
+    const type = <string> this.$route.query.type;
+    if (id) {
+      this.dialogMessage = true;
+      this.createValue.recipientsVo.ids = [id];
+      this.createValue.recipientsVo.type = type;
+    }
   }
-  private settingHandler(row: any){
-    console.log(row)
+  private typeHandler() {
+    this.createValue.recipientsVo.ids = [];
   }
-  private changeGroup() {
-    this.dialogMessage = false;
+  private currentChange(page: number) {
+    this.searchValue.current = page - 1;
+    this.getMessageList();
   }
-  private createGroup() {
+  private getValueById(ids: string[], type: number) {
+    const list = type == 0 ?  this.fanList : this.groupList;
+    let nameList: any = [];
+    ids.forEach(id => {
+      list.forEach((item: any) => {
+        if (id == item.deliveryId || id == item.id) {
+          nameList.push(item.nickname || item.groupName);
+        }
+      });
+    });
+    return nameList.join(',');
+  }
+  private getFanList() {
+    net.base.getFanList({current: 0, size: 500}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.fanList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getGroupList() {
+    net.base.getGroup({current: 0, size: 500}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.groupList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getMerchant() {
+    net.base.getMerchant({size: 500, current: 0}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.merchantList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getMessageList() {
+    net.base.getMessageList(this.searchValue).then((data: any) => {
+      if (data.data.code === 200) {
+        this.messageList = data.data.data;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private addMessageList() {
+    if (this.createValue.deliveryType === '0') {
+      this.createValue.deliveryTime = new Date();
+    }
+    net.base.addMessageList(this.createValue).then((data: any) => {
+      if (data.data.code === 200) {
+        this.getMessageList();
+        this.$message({
+          message: '创建成功',
+          type: 'success'
+        });
+        this.dialogMessage = false;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private createMessageHandler() {
     this.dialogMessage = true;
   }
 }

@@ -1,8 +1,39 @@
 <template>
   <div class="Advertising">
+    <el-dialog
+      title="规则设置"
+      class="dialog"
+      :visible.sync="dialogMessage"
+      width="30%">
+      <el-form :inline="true" :model="createValue" class="demo-form-inline">
+        <el-form-item label="规则名称">
+          <el-input v-model="createValue.name" size="small"></el-input>
+        </el-form-item>
+
+      <el-form-item label="赞助商">
+        <el-select clearable v-model="createValue.sponsorId" placeholder="赞助商" size="small">
+          <el-option v-for="(item, index) in merchantList" :key="index" 
+          :label="item.aliasName" :value="item.id"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="赞助商品">
+        <el-select clearable v-model="createValue.productId" placeholder="赞助商品" size="small">
+          <el-option v-for="(item, index) in goodsAll" :key="index"
+          :label="item.goodsName" :value="item.goodsId"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item label="优先级">
+        <el-input v-model="createValue.priority" size="small"></el-input>
+      </el-form-item>
+    </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="dialogMessage = false">取 消</el-button>
+        <el-button type="primary" @click="addHandler">确 定</el-button>
+      </span>
+    </el-dialog>
     <el-button type="primary" size="small" @click="createGroup">新增广告规则</el-button>
     <el-table
-      :data="goodsTable"
+      :data="advertisinglist.records"
       stripe
       style="width: 100%">
       <el-table-column
@@ -40,11 +71,11 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      @current-change="handleCurrentChange"
+      @current-change="currentChange"
       :current-page.sync="page"
       :page-size="10"
       layout="prev, pager, next, jumper"
-      :total="1000">
+      :total="Number(advertisinglist.total)">
     </el-pagination>
   </div>
 </template>
@@ -92,6 +123,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
+import net from '@/net/index';
 
 @Component({
   components: {},
@@ -99,26 +131,73 @@ import { Component, Vue } from 'vue-property-decorator';
 export default class Advertising extends Vue {
   private dialogMessage = false;
   private page = 0;
-  private searchValue = {
-    name: '',
+  private merchantList: any = [];
+  private goodsAll = [];
+  private createValue: any = {
+    name: undefined,
+    priority: undefined,
+    productId: undefined,
+    sponsorId: undefined,
+  }
+  private searchValue: any = {
+    current: 0,
+    size: 10,
+    sponsorId: 2,
   };
-  private goodsTable = [{
-    a: 'a',
-    b: 'b',
-    c: 'c',
-    d: 'd',
-  }];
-  private searchHandler(){
-    console.log(this.searchValue);
+  private advertisinglist = {
+    total: 0,
+    records: [],
+  };
+  private mounted() {
+    this.getSponsorPosterList();
+    this.getMerchant();
+    this.getGoodsAll();
   }
-  private handleCurrentChange(page: number) {
-    console.log(page);
+  private getSponsorPosterList(){
+    net.base.getSponsorPosterList(this.searchValue).then((data: any) => {
+      if (data.data.code === 200) {
+        this.advertisinglist = data.data.data;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
-  private settingHandler(row: any){
+  private getMerchant() {
+    net.base.getMerchant({size: 500, current: 0}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.merchantList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getGoodsAll() {
+    net.base.getGoodsAll().then((data: any) => {
+      if (data.data.code === 200) {
+        this.goodsAll = data.data.data;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private currentChange(page: number) {
+    this.searchValue.current = page - 1;
+    this.getSponsorPosterList();
+  }
+  private addHandler(row: any){
+    net.base.addSponsorPoster(this.createValue).then((data: any) => {
+      if (data.data.code === 200) {
+        this.dialogMessage = false;
+        this.getSponsorPosterList();
+        this.$message({
+          message: this.createValue.id || this.createValue.id !== '' ? '修改成功' : '添加成功',
+          type: 'success'
+        });
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
     console.log(row)
-  }
-  private changeGroup() {
-    this.dialogMessage = false;
   }
   private createGroup() {
     this.dialogMessage = true;

@@ -21,13 +21,7 @@
         <p>性别:</p><span>{{info.sex === 1 ? '男' : '女'}}</span>
       </div>
       <div class="row">
-        <p>国家:</p><span>{{info.country}}</span>
-      </div>
-      <div class="row">
-        <p>省:</p><span>{{info.province}}</span>
-      </div>
-      <div class="row">
-        <p>市:</p><span>{{info.city}}</span>
+        <p>地址:</p><span>{{info.country + info.province + info.city}}</span>
       </div>
       <div class="row">
         <p>礼品:</p><span>{{info.productName}}</span>
@@ -139,7 +133,8 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      :current-page.sync="searchValue.current"
+      :current-page.sync="page"
+      @current-change="currentChange"
       :page-size="10"
       layout="prev, pager, next, jumper"
       :total="Number(fanList.total)">
@@ -198,6 +193,7 @@ import net from '@/net/index';
   components: {},
 })
 export default class FansList extends Vue {
+  private page = 0;
   private time = [];
   private merchantList: any = [];
   private dialogGroup = false;
@@ -226,14 +222,43 @@ export default class FansList extends Vue {
     this.getMerchant();
     this.getGroupList();
   }
-  private changeHandler(value: string[]) {
-    this.searchValue.deliveryTimeStart = value[0];
-    this.searchValue.deliveryTimeEnd = value[1];
+  private currentChange(page: number) {
+    this.searchValue.current = page - 1;
+    this.getFanList();
   }
+  private changeHandler() {
+    if (this.time && this.time[0]) {
+      this.searchValue.deliveryTimeStart = this.format(this.time[0],'yyyy-MM-dd');
+      this.searchValue.deliveryTimeEnd = this.format(this.time[1],'yyyy-MM-dd');
+    } else {
+      this.searchValue.deliveryTimeStart = undefined;
+      this.searchValue.deliveryTimeEnd = undefined;
+    }
+  }
+  private format(data: Date, fmt: string){
+    const o: any = {
+      'M+': data.getMonth()+1,
+      'd+': data.getDate(),
+      'H+': data.getHours(),
+      'm+': data.getMinutes(),
+      's+': data.getSeconds(),
+      'S+': data.getMilliseconds()
+    };
+    if(/(y+)/.test(fmt)){
+      fmt=fmt.replace(RegExp.$1,(data.getFullYear()+"").substr(4-RegExp.$1.length));
+    }
+    for(var k in o){
+      if (new RegExp('(' + k +')').test(fmt)){
+        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (('00' + o[k]).substr(String(o[k]).length)));
+      }
+    }
+    return fmt;
+  };
   private searchHandler(){
     this.getFanList();
   }
   private getFanList() {
+    this.changeHandler();
     net.base.getFanList(this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
         this.fanList = data.data.data;
@@ -243,7 +268,10 @@ export default class FansList extends Vue {
     });
   }
   private settingHandler(row: any){
-    console.log(row)
+    this.$router.push({
+      name: 'messageList',
+      query: {id: row.subscriberId, type: '0'},
+    })
   }
   private infoHandler(row: any) {
     this.showInfo = true;
@@ -263,7 +291,6 @@ export default class FansList extends Vue {
     net.base.updateGroup(data).then((data: any) => {
       if (data.data.code === 200) {
         this.getFanList();
-        this.merchantList = data.data.data.records;
       } else {
         this.$message.error(data.data.msg);
       }

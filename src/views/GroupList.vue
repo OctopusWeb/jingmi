@@ -65,10 +65,11 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      :current-page.sync="searchValue.current"
+      :current-page.sync="page"
+      @current-change="currentChange"
       :page-size="10"
       layout="prev, pager, next, jumper"
-      :total="1000">
+      :total="Number(groupList.total)">
     </el-pagination>
   </div>
 </template>
@@ -109,10 +110,11 @@ import net from '@/net/index';
   components: {},
 })
 export default class GroupList extends Vue {
+  private page = 0;
   private dialogGroup = false;
   private merchantList: any = [];
-  private searchValue = {
-    sponsorId: '',
+  private searchValue: any = {
+    sponsorId: undefined,
     current: 0,
     size: 10,
   };
@@ -130,6 +132,10 @@ export default class GroupList extends Vue {
   private mounted() {
     this.getGroupList();
     this.getMerchant();
+  }
+  private currentChange(page: number) {
+    this.searchValue.current = page - 1;
+    this.getGroupList();
   }
   private getMerchant() {
     net.base.getMerchant({size: 500, current: 0}).then((data: any) => {
@@ -150,7 +156,10 @@ export default class GroupList extends Vue {
     });
   }
   private settingHandler(row: any){
-    console.log(row)
+    this.$router.push({
+      name: 'messageList',
+      query: {id: row.id, type: '1'},
+    })
   }
   private deletedHandler(id: number) {
     net.base.deletedGroup(id).then((data: any) => {

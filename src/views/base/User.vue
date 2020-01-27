@@ -3,7 +3,7 @@
     <p class="title">{{menuList[menuname]}}</p>
     <div class="userInfo">
       <i class="el-icon-s-custom"></i>
-      <p class="userName">用户名</p>
+      <p class="userName">{{userinfo.username}}</p>
       <span @click="logout">退出登录</span>
     </div>
   </div>
@@ -88,6 +88,9 @@ export default class User extends Vue {
   };
   get menuname() {
     return this.$store.state.menuname;
+  }
+  get userinfo() {
+    return this.$store.state.userInfo;
   }
   private logout() {
     net.base.logout().then((data: any) => {

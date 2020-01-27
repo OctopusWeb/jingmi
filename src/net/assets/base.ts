@@ -48,6 +48,16 @@ export async function addMerchant(payload: any) {
 export async function deletedMerchant(id: any) {
   return await post(`/web/api/sponsor/delete`, {id});
 }
+export async function getSponsorProduct(payload: any) {
+  return await post(`/web/api/sponsorProduct/getPageList`, payload);
+}
+export async function addSponsorProduct(payload: any) {
+  if (payload[0].id === '' || !payload[0].id) {
+    return await post(`/web/api/sponsorProduct/add`, payload);
+  } else {
+    return await post(`/web/api/sponsorProduct/update`, payload);
+  }
+}
 
 /* 粉丝分组 */
 export async function getGroup(payload: any) {
@@ -72,6 +82,32 @@ export async function getFanList(payload: any) {
   return await post(`/web/api/subscriber/getPageList`, payload);
 }
 
+/* 短信管理 */
+export async function getMessageList(payload: any) {
+  return await post(`/web/api/messageDelivery/getPageList`, payload);
+}
+export async function addMessageList(payload: any) {
+  return await post(`/web/api/messageDelivery/add`, payload);
+}
+
+/* 广告位管理 */
+export async function getSponsorPosterList(payload: any) {
+  return await post(`/web/api/sponsorPoster/getPageList`, payload);
+}
+export async function addSponsorPoster(payload: any) {
+  return await post(`/web/api/sponsorPoster/add`, payload);
+}
+export async function getAdvertisingList(payload: any) {
+  return await post(`/sponsorPosterItem/getPageList`, payload);
+}
+export async function addAdvertising(payload: any) {
+  return await post(`/sponsorPosterItem/add`, payload);
+}
+
+
+
+
+
 export default {
   login,
   logout,
@@ -89,6 +125,14 @@ export default {
   deletedGroup,
   addGroup,
   getFanList,
+  getMessageList,
+  addMessageList,
+  getSponsorProduct,
+  addSponsorProduct,
+  getAdvertisingList,
+  addAdvertising,
+  getSponsorPosterList,
+  addSponsorPoster,
 };
 
 

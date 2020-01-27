@@ -1,6 +1,67 @@
 <template>
   <div class="Merchant">
     <el-dialog
+      title="赞助商品"
+      class="dialog2"
+      :visible.sync="createGoods"
+      width="400px">
+      <el-form :inline="true" :model="createGoodsValue" style="margin-bottom: -50px">
+        <el-form-item label="赞助商家">
+          <el-select clearable v-model="createGoodsValue.goodsid" placeholder="赞助商品" size="small">
+            <el-option v-for="(item, index) in goodsAll" :key="index"
+            :label="item.goodsName" :value="item.goodsId"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="赞助数量">
+          <el-input-number size="mini" v-model="createGoodsValue.productCount"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" size="small" @click="createGoodsValueHanlder">确认</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog
+      title="赞助商品"
+      class="dialog2"
+      :visible.sync="goodsInfo"
+      width="50%">
+      <el-button type="primary" size="small" @click="createGoodsHandler">添加商品</el-button>
+      <template>
+        <el-table
+          :data="this.goodsList"
+          stripe
+          style="width: 100%">
+          <el-table-column
+            prop="id"
+            label="序号"
+            width="100">
+          </el-table-column>
+          <el-table-column
+            prop="productImage"
+            label="图片">
+            <template slot-scope="scope">
+              <img style="height: 100px" :src="scope.row.productImage">
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="productName"
+            label="名称">
+          </el-table-column>
+          <el-table-column
+            prop="productCount"
+            label="数量"
+            width="100">
+          </el-table-column>
+          <el-table-column
+        label="操作" width="100">
+        <template slot-scope="scope">
+          <a @click="goodsUpdateHandler(scope.row)">修改</a>
+        </template>
+      </el-table-column>
+        </el-table>
+      </template>
+    </el-dialog>
+    <el-dialog
       title="详细信息"
       class="dialog2"
       :visible.sync="showInfo"
@@ -58,10 +119,19 @@
           <el-input v-model="createValue.contactPhone"></el-input>
         </el-form-item>
         <el-form-item label="地址">
-          <v-distpicker :placeholders="placeholders" @province="province" @city="city" @area="area"></v-distpicker>
+          <v-distpicker v-if="dialogMessage" :placeholders="placeholders" @province="province" @city="city" @area="area"></v-distpicker>
         </el-form-item>
         <el-form-item label="详细地址">
           <el-input v-model="createValue.companyAddress"></el-input>
+        </el-form-item>
+        <el-form-item label="二维码">
+          <el-upload
+            action="http://49.233.92.117:8001/upload/"
+            :headers="headers"
+            :limit="1"
+            :file-list="createValue.fileList">
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -71,10 +141,7 @@
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商">
-        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
-          <el-option v-for="(item, index) in merchantList2" :key="index" 
-          :label="item.aliasName" :value="item.id"></el-option>
-        </el-select>
+        <el-input v-model="searchValue.aliasName" size="small"></el-input>
       </el-form-item>
       <el-button type="primary" size="small" @click="getMerchant">查询</el-button>
       <el-button type="primary" size="small" @click="createGroup">新增商户</el-button>
@@ -107,7 +174,7 @@
         prop="c"
         label="赞助商品" width="100">
         <template slot-scope="scope">
-          <a @click="settingHandler(scope.row)">编辑</a>
+          <a @click="settingHandler(scope.row.id)">编辑</a>
         </template>
       </el-table-column>
       <el-table-column
@@ -121,7 +188,8 @@
       </el-table-column>
     </el-table>
     <el-pagination
-      :current-page.sync="searchValue.current"
+      :current-page.sync="page"
+      @current-change="currentChange"
       :page-size="10"
       layout="prev, pager, next, jumper"
       :total="Number(merchantList.total)">
@@ -193,14 +261,24 @@ import net from '@/net/index';
   components: { VDistpicker },
 })
 export default class Merchant extends Vue {
+  private page = 0;
   private dialogMessage = false;
   private merchantList2: any = [];
   private showInfo = false;
+  private goodsInfo = false;
+  private createGoods = false;
+  private createGoodsValue: any = {
+    goodsid: undefined,
+    productCount: undefined,
+  };
+  private selectedId = '';
   private info = {};
+  private goodsAll = [];
   private merchantList = {
     total: 0,
     records: [],
   };
+  private goodsList = [];
   private createValue: any = {
     aliasName: '',
     companyName: '',
@@ -213,10 +291,13 @@ export default class Merchant extends Vue {
     isDeleted: 0,
   }
   private searchValue = {
-    sponsorId: '',
+    aliasName: '',
     size: 10,
     current: 0,
   };
+  private headers = {
+    token: localStorage.token,
+  }
   private placeholders = {
     province: '',
     city: '',
@@ -225,6 +306,47 @@ export default class Merchant extends Vue {
   private mounted() {
     this.getMerchant();
     this.getMerchant2();
+    this.getGoodsAll();
+  }
+  private currentChange(page: number) {
+    this.searchValue.current = page - 1;
+    this.getMerchant();
+  }
+  private createGoodsValueHanlder() {
+    let create: any;
+    this.goodsAll.forEach((item: any) => {
+      if (item.goodsId === this.createGoodsValue.goodsid) {
+        create = item;
+      }
+    });
+    const data = {
+      goodsId: create.goodsId,
+      productCount: this.createGoodsValue.productCount,
+      productImage: create.goodsPic,
+      productName: create.goodsName,
+      sponsorId: this.selectedId,
+      id : this.createGoodsValue.id,
+    }
+    net.base.addSponsorProduct([data]).then((data: any) => {
+      if (data.data.code === 200) {
+        this.settingHandler(this.selectedId);
+        this.$message({
+          message: '添加成功',
+          type: 'success'
+        });
+        this.createGoods = false;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private goodsUpdateHandler(row: any) {
+    this.createGoods = true;
+    this.createGoodsValue = {
+      goodsid: row.goodsId,
+      productCount: row.productCount,
+      id: row.id,
+    };
   }
   private province(companyProvince: any) {
     this.createValue.companyProvince = companyProvince.value;
@@ -259,7 +381,14 @@ export default class Merchant extends Vue {
       }
     });
   }
-    private getMerchant2() {
+  private createGoodsHandler() {
+    this.createGoods = true;
+    this.createGoodsValue = {
+      goodsid: undefined,
+      productCount: undefined,
+    };
+  }
+  private getMerchant2() {
     net.base.getMerchant({size: 500, current: 0}).then((data: any) => {
       if (data.data.code === 200) {
         this.merchantList2 = data.data.data.records;
@@ -268,8 +397,16 @@ export default class Merchant extends Vue {
       }
     });
   }
-  private settingHandler(row: any){
-    console.log(row)
+  private settingHandler(id: any){
+    this.goodsInfo = true;
+    this.selectedId = id;
+    net.base.getSponsorProduct({size: 500, current: 0, sponsorId: id}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.goodsList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private infoHandler(row: any) {
     this.showInfo = true;
@@ -292,6 +429,15 @@ export default class Merchant extends Vue {
           message: '删除成功',
           type: 'success'
         });
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getGoodsAll() {
+    net.base.getGoodsAll().then((data: any) => {
+      if (data.data.code === 200) {
+        this.goodsAll = data.data.data;
       } else {
         this.$message.error(data.data.msg);
       }

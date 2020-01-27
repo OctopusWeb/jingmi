@@ -51,11 +51,6 @@
         <el-button type="primary" @click="getGoodsList" size="small">查询</el-button>
       </el-form-item>
     </el-form>
-    <!-- <div class="goodsInfo">
-      <p>全部:<span>2000</span>个</p>
-      <p>已投放:<span>2000</span>个</p>
-      <p>已领取:<span>2000</span>个</p>
-    </div> -->
     <el-table
       :data="goodsTable.records"
       stripe
@@ -85,19 +80,20 @@
         label="手机号" width="150">
       </el-table-column>
       <el-table-column
+        prop="nickname"
+        label="领取人" width="150">
+      </el-table-column>
+      <el-table-column
         prop="status"
         label="状态" width="150">
         <template slot-scope="scope">
           {{statusList[scope.row.status].label}}
         </template>
       </el-table-column>
-      <el-table-column
-        prop="nickname"
-        label="领取人" width="150">
-      </el-table-column>
     </el-table>
     <el-pagination
-      :current-page.sync="searchValue.current"
+      :current-page.sync="page"
+      @current-change="currentChange"
       :page-size="10"
       layout="prev, pager, next, jumper"
       :total="Number(goodsTable.total)">
@@ -137,22 +133,23 @@ import net from '@/net/index';
   components: {},
 })
 export default class GetGoodsInfo extends Vue {
+  private page = 0;
   private goodsAll = [];
   private statusList = [
     {value: 0, label: '初始化'},
     {value: 1, label: '成功'},
     {value: 2, label: '失败'},
   ];
-  private time = [];
+  private time: any = [];
   private merchantList: any = [];
-  private searchValue = {
-    sponsorId: '',
-    productId: '',
-    city: '',
-    deviceNo: '',
-    status: '',
-    deliveryTimeEnd: '',
-    deliveryTimeStart: '',
+  private searchValue: any = {
+    sponsorId: undefined,
+    productId: undefined,
+    city: undefined,
+    deviceNo: undefined,
+    status: undefined,
+    deliveryTimeEnd: undefined,
+    deliveryTimeStart: undefined,
     size: 10,
     current: 0,
   };
@@ -165,11 +162,40 @@ export default class GetGoodsInfo extends Vue {
     this.getMerchant();
     this.getGoodsAll();
   }
-  private changeHandler(value: string[]) {
-    this.searchValue.deliveryTimeStart = value[0];
-    this.searchValue.deliveryTimeEnd = value[1];
+  private currentChange(page: number) {
+    this.searchValue.current = page - 1;
+    this.getGoodsList();
   }
+  private changeHandler() {
+    if (this.time && this.time[0]) {
+      this.searchValue.deliveryTimeStart = this.format(this.time[0],'yyyy-MM-dd');
+      this.searchValue.deliveryTimeEnd = this.format(this.time[1],'yyyy-MM-dd');
+    } else {
+      this.searchValue.deliveryTimeStart = undefined;
+      this.searchValue.deliveryTimeEnd = undefined;
+    }
+  }
+  private format(data: Date, fmt: string){
+    const o: any = {
+      'M+': data.getMonth()+1,
+      'd+': data.getDate(),
+      'H+': data.getHours(),
+      'm+': data.getMinutes(),
+      's+': data.getSeconds(),
+      'S+': data.getMilliseconds()
+    };
+    if(/(y+)/.test(fmt)){
+      fmt=fmt.replace(RegExp.$1,(data.getFullYear()+"").substr(4-RegExp.$1.length));
+    }
+    for(var k in o){
+      if (new RegExp('(' + k +')').test(fmt)){
+        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (('00' + o[k]).substr(String(o[k]).length)));
+      }
+    }
+    return fmt;
+  };
   private getGoodsList() {
+    this.changeHandler();
     net.base.getGoodsList(this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
         this.goodsTable = data.data.data;
