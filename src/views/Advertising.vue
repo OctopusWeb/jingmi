@@ -75,14 +75,15 @@
           <el-input v-model="createValue.name" size="small"></el-input>
         </el-form-item>
       <el-form-item label="赞助商">
-        <el-select @change="sponsorHandler" clearable
+        <el-select @change="sponsorHandler" clearable :disabled="Boolean(createValue.id)"
         v-model="createValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="赞助商品">
-        <el-select clearable v-model="createValue.productId" placeholder="赞助商品" size="small">
+        <el-select clearable :disabled="Boolean(createValue.id)" 
+        v-model="createValue.productId" placeholder="赞助商品" size="small">
           <el-option v-for="(item, index) in goodsAll" :key="index"
           :label="item.productName" :value="item.id"></el-option>
         </el-select>
@@ -96,7 +97,16 @@
         <el-button type="primary" @click="addHandler">确 定</el-button>
       </span>
     </el-dialog>
-    <el-button type="primary" size="small" @click="createGroup">新增广告规则</el-button>
+     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
+      <el-form-item label="赞助商">
+        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+          <el-option v-for="(item, index) in merchantList" :key="index" 
+          :label="item.aliasName" :value="item.id"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-button type="primary" size="small" @click="getSponsorPosterList">查询</el-button>
+      <el-button type="primary" size="small" @click="createGroup">新增广告规则</el-button>
+    </el-form>
     <el-table
       :data="advertisinglist.records || [,,]"
       stripe
@@ -110,7 +120,7 @@
         label="规则名称">
       </el-table-column>
       <el-table-column
-        prop="priority"
+        prop="sponsorId"
         label="赞助商">
       </el-table-column>
       <el-table-column
@@ -225,7 +235,7 @@ export default class Advertising extends Vue {
   private merchantList: any = [];
   private goodsAll = [];
   private advertisingList = [];
-  private createGoodsValue = {
+  private createGoodsValue: any = {
     id: undefined,
     imageUrl: undefined,
     refUrl: undefined,
@@ -245,7 +255,7 @@ export default class Advertising extends Vue {
   private searchValue: any = {
     current: 0,
     size: 10,
-    sponsorId: 2,
+    sponsorId: undefined,
   };
   private advertisinglist = {
     total: 0,
@@ -367,11 +377,13 @@ export default class Advertising extends Vue {
       refUrl: row.refUrl,
       slogan: row.slogan,
       sponsorPosterId: row.sponsorPosterId,
+      displayPage: row.displayPage,
     }
   }
   private createGoodsValueHanlder(row: any) {
     net.base.addSponsorItemPoster(this.createGoodsValue).then((data: any) => {
       if (data.data.code === 200) {
+        this.showAdvertisingImage = true;
         this.getPosterItem(this.selectedId);
         this.$message({
           message: '修改成功',
@@ -381,7 +393,6 @@ export default class Advertising extends Vue {
         this.$message.error(data.data.msg);
       }
     });
-    console.log(row);
   }
 }
 </script>

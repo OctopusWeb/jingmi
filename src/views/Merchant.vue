@@ -327,11 +327,11 @@ export default class Merchant extends Vue {
       sponsorId: this.selectedId,
       id : this.createGoodsValue.id,
     }
-    net.base.addSponsorProduct([data]).then((data: any) => {
+    net.base.addSponsorProduct(data).then((data: any) => {
       if (data.data.code === 200) {
         this.settingHandler(this.selectedId);
         this.$message({
-          message: '添加成功',
+          message: '操作成功',
           type: 'success'
         });
         this.createGoods = false;

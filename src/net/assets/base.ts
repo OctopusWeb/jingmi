@@ -52,8 +52,8 @@ export async function getSponsorProduct(payload: any) {
   return await post(`/web/api/sponsorProduct/getPageList`, payload);
 }
 export async function addSponsorProduct(payload: any) {
-  if (payload[0].id === '' || !payload[0].id) {
-    return await post(`/web/api/sponsorProduct/add`, payload);
+  if (payload.id === '' || !payload.id) {
+    return await post(`/web/api/sponsorProduct/add`, [payload]);
   } else {
     return await post(`/web/api/sponsorProduct/update`, payload);
   }
