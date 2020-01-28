@@ -1,7 +1,7 @@
 <template>
   <div class="GetGoodsInfo">
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
-      <el-form-item label="赞助商">
+      <el-form-item label="赞助商" v-if="getUserinfo.roleId === '1'">
         <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
@@ -157,6 +157,9 @@ export default class GetGoodsInfo extends Vue {
     total: 0,
     records: [],
   };
+  get getUserinfo() {
+    return this.$store.state.userInfo;
+  }
   private mounted() {
     this.getGoodsList();
     this.getMerchant();
@@ -196,6 +199,9 @@ export default class GetGoodsInfo extends Vue {
   };
   private getGoodsList() {
     this.changeHandler();
+    if (this.getUserinfo.roleId === '2') {
+      this.searchValue.sponsorId = this.getUserinfo.sponsorId;
+    }
     net.base.getGoodsList(this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
         this.goodsTable = data.data.data;

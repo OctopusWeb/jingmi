@@ -45,7 +45,7 @@
       </span>
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
-      <el-form-item label="赞助商">
+      <el-form-item label="赞助商" v-if="this.getUserinfo.roleId === '1'">
         <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
@@ -222,6 +222,9 @@ export default class FansList extends Vue {
     this.getMerchant();
     this.getGroupList();
   }
+  get getUserinfo() {
+    return this.$store.state.userInfo;
+  }
   private currentChange(page: number) {
     this.searchValue.current = page - 1;
     this.getFanList();
@@ -259,6 +262,9 @@ export default class FansList extends Vue {
   }
   private getFanList() {
     this.changeHandler();
+    if (this.getUserinfo.roleId === '2') {
+      this.searchValue.sponsorId = this.getUserinfo.sponsorId;
+    }
     net.base.getFanList(this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
         this.fanList = data.data.data;

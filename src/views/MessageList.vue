@@ -6,7 +6,7 @@
       :visible.sync="dialogMessage"
       width="450px">
       <el-form :inline="true" :model="createValue" class="demo-form-inline">
-      <el-form-item label="赞助商">
+      <el-form-item label="赞助商" v-show="getUserinfo.roleId === '1'">
         <el-select clearable v-model="createValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
@@ -53,13 +53,13 @@
       </span>
     </el-dialog>
    <el-form :inline="true" :model="searchValue" class="demo-form-inline">
-      <el-form-item label="赞助商">
+      <el-form-item label="赞助商" v-if="getUserinfo.roleId === '1'">
         <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
-      <el-button type="primary" size="small" @click="getMessageList">查询</el-button>
+      <el-button type="primary" size="small" @click="getMessageList" v-if="getUserinfo.roleId === '1'">查询</el-button>
       <el-button type="primary" size="small" @click="createMessageHandler">新建推送任务</el-button>
     </el-form>
     <el-table
@@ -196,6 +196,9 @@ export default class MessageList extends Vue {
     current: 0,
     size: 10,
   };
+  get getUserinfo() {
+    return this.$store.state.userInfo;
+  }
   private mounted() {
     this.getMessageList();
     this.getMerchant();
@@ -256,6 +259,9 @@ export default class MessageList extends Vue {
     });
   }
   private getMessageList() {
+    if (this.getUserinfo.roleId === '2') {
+      this.searchValue.sponsorId = this.getUserinfo.sponsorId;
+    }
     net.base.getMessageList(this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
         this.messageList = data.data.data;
@@ -283,6 +289,17 @@ export default class MessageList extends Vue {
   }
   private createMessageHandler() {
     this.dialogMessage = true;
+    this.createValue = {
+      deliveryType: '0',
+      deliveryTime: undefined,
+      recipientsVo: {
+        type: '0',
+        ids: [],
+      },
+      content: undefined,
+      status: 0,
+      sponsorId: this.getUserinfo.sponsorId,
+    }
   }
 }
 </script>

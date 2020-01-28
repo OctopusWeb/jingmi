@@ -12,7 +12,7 @@
         <el-form-item label="备注">
           <el-input v-model="createGroup.remark"></el-input>
         </el-form-item>
-        <el-form-item label="赞助商">
+        <el-form-item label="赞助商" v-show="getUserinfo.roleId === '1'">
           <el-select clearable v-model="createGroup.sponsorId" placeholder="赞助商" size="small">
             <el-option v-for="(item, index) in merchantList" :key="index" 
             :label="item.aliasName" :value="item.id"></el-option>
@@ -25,13 +25,14 @@
       </span>
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
-      <el-form-item label="赞助商">
+      <el-form-item label="赞助商" v-if="getUserinfo.roleId === '1'">
         <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
-      <el-button type="primary" size="small" @click="getGroupList">查询</el-button>
+      <el-button type="primary" size="small" 
+      @click="getGroupList" v-if="getUserinfo.roleId === '1'">查询</el-button>
       <el-button type="primary" size="small" @click="createGroupHandler">新建分组</el-button>
     </el-form>
     <el-table
@@ -129,6 +130,9 @@ export default class GroupList extends Vue {
     total: 0,
     records: [],
   };
+  get getUserinfo() {
+    return this.$store.state.userInfo;
+  }
   private mounted() {
     this.getGroupList();
     this.getMerchant();
@@ -147,6 +151,9 @@ export default class GroupList extends Vue {
     });
   }
   private getGroupList() {
+    if (this.getUserinfo.roleId === '2') {
+      this.searchValue.sponsorId = this.getUserinfo.sponsorId;
+    }
     net.base.getGroup(this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
         this.groupList = data.data.data;
@@ -195,6 +202,9 @@ export default class GroupList extends Vue {
       remark: '',
       sponsorId: '',
       isDeleted: 0,
+    }
+    if (this.getUserinfo.roleId === '2') {
+      this.createGroup.sponsorId = this.getUserinfo.sponsorId;
     }
     this.dialogGroup = true;
   }

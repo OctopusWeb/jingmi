@@ -24,6 +24,12 @@
             <el-radio label="2">赞助商</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="赞助商" v-if="userInfo.roleId !== '1'">
+          <el-select clearable v-model="userInfo.sponsorId" placeholder="赞助商" size="small">
+          <el-option v-for="(item, index) in merchantList" :key="index" 
+          :label="item.aliasName" :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogMessage = false">取 消</el-button>
@@ -172,7 +178,6 @@ export default class UserList extends Vue {
   // private userInfoHandler(row: any) {
   //   net.base.userInfo(row.id).then((data: any) => {
   //     if (data.data.code === 200) {
-  //       console.log(data.data.data);
   //     } else {
   //       this.$message.error(data.data.msg);
   //     }

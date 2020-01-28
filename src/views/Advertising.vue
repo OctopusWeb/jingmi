@@ -76,7 +76,7 @@
         <el-form-item label="规则名称">
           <el-input v-model="createValue.name" size="small"></el-input>
         </el-form-item>
-      <el-form-item label="赞助商">
+      <el-form-item label="赞助商" v-show="getUserinfo.roleId === '1'">
         <el-select @change="sponsorHandler" clearable :disabled="Boolean(createValue.id)"
         v-model="createValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
@@ -100,13 +100,13 @@
       </span>
     </el-dialog>
      <el-form :inline="true" :model="searchValue" class="demo-form-inline">
-      <el-form-item label="赞助商">
+      <el-form-item label="赞助商" v-if="getUserinfo.roleId === '1'">
         <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
-      <el-button type="primary" size="small" @click="getSponsorPosterList">查询</el-button>
+      <el-button type="primary" size="small" @click="getSponsorPosterList" v-if="getUserinfo.roleId === '1'">查询</el-button>
       <el-button type="primary" size="small" @click="createGroup">新增广告规则</el-button>
     </el-form>
     <el-table
@@ -263,11 +263,17 @@ export default class Advertising extends Vue {
     total: 0,
     records: [],
   };
+  get getUserinfo() {
+    return this.$store.state.userInfo;
+  }
   private mounted() {
     this.getSponsorPosterList();
     this.getMerchant();
   }
-  private getSponsorPosterList(){
+  private getSponsorPosterList() {
+    if (this.getUserinfo.roleId === '2') {
+      this.searchValue.sponsorId = this.getUserinfo.sponsorId;
+    }
     net.base.getSponsorPosterList(this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
         this.advertisinglist = data.data.data;
@@ -331,6 +337,9 @@ export default class Advertising extends Vue {
       productId: undefined,
       sponsorId: undefined,
       isActive: 1,
+    }
+    if (this.getUserinfo.roleId === '2') {
+      this.createValue.sponsorId = this.getUserinfo.sponsorId;
     }
   }
   private updateHanlder(row: any) {

@@ -8,7 +8,8 @@
       :default-active="active"
       @select="selectHandler"
       active-text-color="#ffd04b">
-      <el-menu-item v-for="(item, index) in menuList" :key="index" :index="item.path">
+      <el-menu-item v-for="(item, index) in menuList" 
+      :key="index" :index="item.path" :disabled="item.path === 'merchant' && getUserinfo.roleId !== '1'">
         <i :class="item.icon"></i>
         <span slot="title">{{item.name}}</span>
       </el-menu-item>
@@ -55,6 +56,9 @@ export default class Menu extends Vue {
     {name: '广告位管理', path: 'advertising', icon: 'el-icon-s-order'},
     {name: '用户管理', path: 'userList', icon: 'el-icon-s-custom'},
   ];
+  get getUserinfo() {
+    return this.$store.state.userInfo;
+  }
   private selectHandler(path: string) {
     this.$store.dispatch('setMenuName', path);
     const nowPath = this.$route.name;

@@ -3,8 +3,8 @@
     <p class="title">{{menuList[menuname]}}</p>
     <div class="userInfo">
       <i class="el-icon-s-custom"></i>
-      <p class="userName">{{userinfo.username}}</p>
-      <span @click="logout">退出登录</span>
+      <p class="userName">{{userinfo.nickname}}</p>
+      <span @click="logout">退出</span>
     </div>
   </div>
 </template>
@@ -30,14 +30,14 @@
     position: relative;
     float: right;
     cursor: pointer;
-    width: 100px;
+    width: 150px;
     p,i{
       display: inline-block;
       line-height: 50px;
       margin: 0;
       padding: 0;
       margin-right: 10px;
-      font-size: 12px;
+      font-size: 16px;
     }
     .el-icon-s-custom{
       border: 1px #000 solid;
@@ -49,24 +49,25 @@
       cursor: pointer;
     }
     span{
-      position: absolute;
-      display: none;
-      left: 0;
-      top: 40px;
-      width: 100px;
-      height: 30px;
-      background: #545c64;
-      color: #fff;
+    //   position: absolute;
+    //   display: none;
+    //   left: 0;
+    //   top: 40px;
+    //   width: 100px;
+    //   height: 30px;
+    //   background: #545c64;
+    //   color: #fff;
       font-size: 12px;
-      line-height: 30px;
-      text-align: center;
+      color: #409EFF;
+    //   line-height: 30px;
+    //   text-align: center;
     }
   }
-  .userInfo:hover{
-    span{
-      display: block;
-    }
-  }
+  // .userInfo:hover{
+  //   span{
+  //     display: block;
+  //   }
+  // }
 }
 </style>
 <script lang="ts">
