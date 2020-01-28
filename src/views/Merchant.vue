@@ -126,7 +126,7 @@
         </el-form-item>
         <el-form-item label="二维码">
           <el-upload
-            action="http://49.233.92.117:8001/upload/"
+            action="/upload/img"
             :headers="headers"
             :limit="1"
             :file-list="createValue.fileList">
