@@ -14,7 +14,7 @@
         </el-form-item>
          <el-form-item label="广告图片">
           <el-upload
-            action="http://49.233.92.117:8001/upload/img"
+            action="/upload/img"
             :on-success="successHandler"
             :headers="headers"
             :limit="1"

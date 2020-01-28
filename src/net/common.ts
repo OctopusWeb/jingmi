@@ -23,7 +23,7 @@ export const instance = axios.create({
 
 function getBaseUrl(host?: string) {
   const windowHost = host || window.location.host;
-  return `http://${windowHost}/api`;
+  return `http://${windowHost}`;
 }
 
 export function get(url: string, param: any) {
