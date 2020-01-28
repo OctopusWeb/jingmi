@@ -2,9 +2,9 @@ import axios from 'axios';
 
 const token = localStorage.token;
 
-export function getToken(){
-  let token = localStorage.token;
-  return token.substring(1, token.length-1);
+export function getToken() {
+  const token = localStorage.token;
+  return token.substring(1, token.length - 1);
 }
 
 export const instance = axios.create({
@@ -23,7 +23,7 @@ export const instance = axios.create({
 
 function getBaseUrl(host?: string) {
   const windowHost = host || window.location.host;
-  return `http://${windowHost}/`;
+  return `http://${windowHost}/api`;
 }
 
 export function get(url: string, param: any) {

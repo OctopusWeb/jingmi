@@ -126,10 +126,12 @@
         </el-form-item>
         <el-form-item label="二维码">
           <el-upload
-            action="/upload/img"
+            action="http://49.233.92.117:8001/upload/img"
             :headers="headers"
+            :on-success="successHandler"
             :limit="1"
-            :file-list="createValue.fileList">
+            :file-list="fileList"
+            list-type="picture-card">
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </el-form-item>
@@ -268,6 +270,7 @@ export default class Merchant extends Vue {
   private showInfo = false;
   private goodsInfo = false;
   private createGoods = false;
+  private fileList: any = [];
   private createGoodsValue: any = {
     goodsid: undefined,
     productCount: undefined,
@@ -290,6 +293,7 @@ export default class Merchant extends Vue {
     companyDistrict: '',
     companyAddress: '',
     isDeleted: 0,
+    companyQrcodeUrl: '',
   }
   private searchValue = {
     aliasName: '',
@@ -312,6 +316,9 @@ export default class Merchant extends Vue {
   private currentChange(page: number) {
     this.searchValue.current = page - 1;
     this.getMerchant();
+  }
+  private successHandler(result: any) {
+    this.createValue.companyQrcodeUrl = result.data;
   }
   private createGoodsValueHanlder() {
     let create: any;
@@ -415,6 +422,14 @@ export default class Merchant extends Vue {
   }
   private updateHandler(row: any) {
     this.createValue = row;
+    if (this.createValue.companyQrcodeUrl && this.createValue.companyQrcodeUrl !== '') {
+      this.fileList = [{
+        name: this.createValue.companyQrcodeUrl,
+        url: 'http://msbox.oss-cn-beijing.aliyuncs.com/' + this.createValue.companyQrcodeUrl,
+      }];
+    } else {
+      this.fileList = [];
+    }
     this.placeholders = {
       province: row.companyProvince,
       city: row.companyCity,

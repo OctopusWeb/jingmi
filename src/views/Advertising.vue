@@ -14,10 +14,12 @@
         </el-form-item>
          <el-form-item label="广告图片">
           <el-upload
-            action="/upload/img"
+            action="http://49.233.92.117:8001/upload/img"
+            :on-success="successHandler"
             :headers="headers"
             :limit="1"
-            :file-list="fileList">
+            :file-list="fileList"
+            list-type="picture-card">
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </el-form-item>
@@ -47,7 +49,8 @@
             prop="imageUrl"
             label="图片">
             <template slot-scope="scope">
-              <img style="height: 100px" :src="scope.row.imageUrl">
+              <img style="height: 100px" 
+              :src="'http://msbox.oss-cn-beijing.aliyuncs.com/' + scope.row.imageUrl">
             </template>
           </el-table-column>
           <el-table-column
@@ -229,7 +232,7 @@ import {getToken} from "@/net/common";
   components: {},
 })
 export default class Advertising extends Vue {
-  private fileList = [];
+  private fileList: any = [];
   private dialogMessage = false;
   private showAdvertising = false;
   private showAdvertisingImage = false
@@ -309,7 +312,7 @@ export default class Advertising extends Vue {
     this.showAdvertisingImage = true;
     this.createGoodsValue = {
       id: undefined,
-      imageUrl: 'demo.png',
+      imageUrl: undefined,
       refUrl: undefined,
       slogan: undefined,
       sponsorPosterId: this.selectedId,
@@ -394,6 +397,14 @@ export default class Advertising extends Vue {
   }
   private goodsUpdateHandler(row: any) {
     this.showAdvertisingImage = true;
+    if (row.imageUrl && row.imageUrl !== '') {
+      this.fileList = [{
+        name: row.imageUrl,
+        url: 'http://msbox.oss-cn-beijing.aliyuncs.com/' + row.imageUrl,
+      }];
+    } else {
+      this.fileList = [];
+    }
     this.createGoodsValue = {
       id: row.id,
       imageUrl: row.imageUrl,
@@ -402,6 +413,9 @@ export default class Advertising extends Vue {
       sponsorPosterId: row.sponsorPosterId,
       displayPage: row.displayPage,
     }
+  }
+  private successHandler(result: any) {
+    this.createGoodsValue.imageUrl = result.data;
   }
   private createGoodsValueHanlder() {
     net.base.addSponsorItemPoster(this.createGoodsValue).then((data: any) => {
