@@ -12,6 +12,7 @@ import UserList from './views/UserList.vue';
 Vue.use(Router);
 
 export default new Router({
+  mode: 'hash',
   routes: [
     {
       path: '/',

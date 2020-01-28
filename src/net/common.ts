@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 const token = localStorage.token;
 
 export const instance = axios.create({
@@ -16,11 +17,8 @@ export const instance = axios.create({
 });
 
 function getBaseUrl(host?: string) {
-  // 自动拼接接口前缀地址，无需启动时更改
   const windowHost = host || window.location.host;
-  const isDev = windowHost.indexOf('localhost') !==  -1;
-  const baseUrl = `http://${windowHost}/${true ? 'api' : ''}`;
-  return baseUrl;
+  return `http://${windowHost}/`;
 }
 
 export function get(url: string, param: any) {
