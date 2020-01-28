@@ -32,12 +32,14 @@
       :visible.sync="showAdvertising"
       width="50%">
       <template>
+        <el-button v-if="advertisingList.length < 3"
+        type="primary" size="small" @click="createGoodsHandler(advertisingList.length + 1)">添加广告位</el-button>
         <el-table
           :data="advertisingList"
           stripe
           style="width: 100%">
           <el-table-column
-            prop="id"
+            prop="displayPage"
             label="序号"
             width="100">
           </el-table-column>
@@ -296,6 +298,17 @@ export default class Advertising extends Vue {
     this.searchValue.current = page - 1;
     this.getSponsorPosterList();
   }
+  private createGoodsHandler(displayPage: number) {
+    this.showAdvertisingImage = true;
+    this.createGoodsValue = {
+      id: undefined,
+      imageUrl: 'demo.png',
+      refUrl: undefined,
+      slogan: undefined,
+      sponsorPosterId: this.selectedId,
+      displayPage,
+    }
+  }
   private addHandler(row: any){
     net.base.addSponsorPoster(this.createValue).then((data: any) => {
       if (data.data.code === 200) {
@@ -380,10 +393,10 @@ export default class Advertising extends Vue {
       displayPage: row.displayPage,
     }
   }
-  private createGoodsValueHanlder(row: any) {
+  private createGoodsValueHanlder() {
     net.base.addSponsorItemPoster(this.createGoodsValue).then((data: any) => {
       if (data.data.code === 200) {
-        this.showAdvertisingImage = true;
+        this.showAdvertisingImage = false;
         this.getPosterItem(this.selectedId);
         this.$message({
           message: '修改成功',

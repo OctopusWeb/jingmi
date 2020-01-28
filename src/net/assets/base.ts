@@ -122,7 +122,7 @@ export async function getPosterItem(payload: any) {
 }
 export async function addSponsorItemPoster(payload: any) {
   if (payload.id === '' || !payload.id) {
-    return await post(`/web/api/sponsorPoster/add`, payload);
+    return await post(`/sponsorPosterItem/add`, [payload]);
   } else {
     return await post(`/sponsorPosterItem/update`, payload);
   }
