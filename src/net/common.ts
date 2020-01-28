@@ -2,6 +2,11 @@ import axios from 'axios';
 
 const token = localStorage.token;
 
+export function getToken(){
+  let token = localStorage.token;
+  return token.substring(1, token.length-1);
+}
+
 export const instance = axios.create({
   baseURL: getBaseUrl(),
   timeout: 180000,

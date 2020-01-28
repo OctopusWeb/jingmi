@@ -256,6 +256,7 @@
 import { Component, Vue } from 'vue-property-decorator';
 import VDistpicker from 'v-distpicker'
 import net from '@/net/index';
+import {getToken} from "@/net/common";
 
 @Component({
   components: { VDistpicker },
@@ -296,7 +297,7 @@ export default class Merchant extends Vue {
     current: 0,
   };
   private headers = {
-    token: localStorage.token,
+    token: getToken(),
   }
   private placeholders = {
     province: '',

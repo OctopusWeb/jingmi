@@ -223,6 +223,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
 import net from '@/net/index';
+import {getToken} from "@/net/common";
 
 @Component({
   components: {},
@@ -252,7 +253,7 @@ export default class Advertising extends Vue {
     isActive: 1,
   }
   private headers = {
-    token: localStorage.token,
+    token: getToken(),
   }
   private searchValue: any = {
     current: 0,
