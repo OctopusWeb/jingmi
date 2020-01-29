@@ -125,11 +125,11 @@
         label="规则名称">
       </el-table-column>
       <el-table-column
-        prop="sponsorId"
+        prop="aliasName"
         label="赞助商">
       </el-table-column>
       <el-table-column
-        prop="productId"
+        prop="productName"
         label="礼品">
       </el-table-column>
       <el-table-column
