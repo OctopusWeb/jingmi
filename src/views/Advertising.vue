@@ -320,6 +320,9 @@ export default class Advertising extends Vue {
     }
   }
   private addHandler(row: any){
+    if (this.createValue.roleId === '1') {
+      this.createValue.sponsorId = '-1';
+    }
     net.base.addSponsorPoster(this.createValue).then((data: any) => {
       if (data.data.code === 200) {
         this.dialogMessage = false;
