@@ -117,7 +117,7 @@
         prop="groupId"
         label="分组">
         <template slot-scope="scope">
-          <span>{{scope.row.groupName}}</span>
+          <span>{{scope.row.groupName || '未分组'}}</span>
           <a style="margin-left: 10px" @click="changeGroupHanlder(scope.row)">更改</a>
         </template>
       </el-table-column>
@@ -226,7 +226,7 @@ export default class FansList extends Vue {
     return this.$store.state.userInfo;
   }
   private currentChange(page: number) {
-    this.searchValue.current = page - 1;
+    this.searchValue.current = page;
     this.getFanList();
   }
   private changeHandler() {

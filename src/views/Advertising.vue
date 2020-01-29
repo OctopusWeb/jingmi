@@ -305,7 +305,7 @@ export default class Advertising extends Vue {
     });
   }
   private currentChange(page: number) {
-    this.searchValue.current = page - 1;
+    this.searchValue.current = page;
     this.getSponsorPosterList();
   }
   private createGoodsHandler(displayPage: number) {

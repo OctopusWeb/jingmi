@@ -84,6 +84,10 @@
         label="领取人" width="150">
       </el-table-column>
       <el-table-column
+        prop="deliveryTime"
+        label="领取时间" width="150">
+      </el-table-column>
+      <el-table-column
         prop="status"
         label="状态" width="150">
         <template slot-scope="scope">
@@ -137,8 +141,8 @@ export default class GetGoodsInfo extends Vue {
   private goodsAll = [];
   private statusList = [
     {value: 0, label: '初始化'},
-    {value: 1, label: '成功'},
-    {value: 2, label: '失败'},
+    {value: 1, label: '失败'},
+    {value: 2, label: '成功'},
   ];
   private time: any = [];
   private merchantList: any = [];
@@ -151,7 +155,7 @@ export default class GetGoodsInfo extends Vue {
     deliveryTimeEnd: undefined,
     deliveryTimeStart: undefined,
     size: 10,
-    current: 0,
+    current: 1,
   };
   private goodsTable = {
     total: 0,
@@ -166,7 +170,7 @@ export default class GetGoodsInfo extends Vue {
     this.getGoodsAll();
   }
   private currentChange(page: number) {
-    this.searchValue.current = page - 1;
+    this.searchValue.current = page;
     this.getGoodsList();
   }
   private changeHandler() {

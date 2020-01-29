@@ -138,7 +138,7 @@ export default class GroupList extends Vue {
     this.getMerchant();
   }
   private currentChange(page: number) {
-    this.searchValue.current = page - 1;
+    this.searchValue.current = page;
     this.getGroupList();
   }
   private getMerchant() {

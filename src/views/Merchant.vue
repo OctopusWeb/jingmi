@@ -6,7 +6,7 @@
       :visible.sync="createGoods"
       width="400px">
       <el-form :inline="true" :model="createGoodsValue" style="margin-bottom: -50px">
-        <el-form-item label="赞助商家">
+        <el-form-item label="赞助商品">
           <el-select clearable v-model="createGoodsValue.goodsid" placeholder="赞助商品" size="small">
             <el-option v-for="(item, index) in goodsAll" :key="index"
             :label="item.goodsName" :value="item.goodsId"></el-option>
@@ -32,8 +32,8 @@
           stripe
           style="width: 100%">
           <el-table-column
-            prop="id"
-            label="序号"
+            prop="goodsId"
+            label="商品ID"
             width="100">
           </el-table-column>
           <el-table-column
@@ -314,7 +314,7 @@ export default class Merchant extends Vue {
     this.getGoodsAll();
   }
   private currentChange(page: number) {
-    this.searchValue.current = page - 1;
+    this.searchValue.current = page;
     this.getMerchant();
   }
   private successHandler(result: any) {

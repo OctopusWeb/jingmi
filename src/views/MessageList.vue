@@ -216,7 +216,7 @@ export default class MessageList extends Vue {
     this.createValue.recipientsVo.ids = [];
   }
   private currentChange(page: number) {
-    this.searchValue.current = page - 1;
+    this.searchValue.current = page;
     this.getMessageList();
   }
   private getValueById(ids: string[], type: number) {
