@@ -10,7 +10,7 @@
       @select="selectHandler"
       active-text-color="#ffd04b">
       <el-menu-item v-for="(item, index) in isShowList" 
-      :key="index" :index="item.path" :disabled="item.path === 'merchant' && getUserinfo.roleId !== '1'">
+      :key="index" :index="item.path">
         <i :class="item.icon"></i>
         <span slot="title">{{item.name}}</span>
       </el-menu-item>

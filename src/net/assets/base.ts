@@ -135,7 +135,7 @@ export async function getSysRoleMenu(payload: any) {
 export async function setSysRoleMenu(id: number, active: number) {
   if (active === 1) {
     return await post(`/sysRoleMenu/active`, {id});
-  } else if (active === 2) {
+  } else if (active === 0) {
     return await post(`/sysRoleMenu/inactive`, {id});
   }
 }
