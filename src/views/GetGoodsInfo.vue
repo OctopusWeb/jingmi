@@ -140,7 +140,7 @@ export default class GetGoodsInfo extends Vue {
   private page = 0;
   private goodsAll = [];
   private statusList = [
-    {value: 0, label: '初始化'},
+    {value: 0, label: '未领取'},
     {value: 1, label: '失败'},
     {value: 2, label: '成功'},
   ];
