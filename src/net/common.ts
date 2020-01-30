@@ -24,7 +24,7 @@ export const instance = axios.create({
 function getBaseUrl(host?: string) {
   const windowHost = host || window.location.host;
   const isDev = windowHost === 'localhost' || windowHost === '127.0.0.1';
-  return `${document.location.protocol}//${windowHost}/api`;
+  return `${document.location.protocol}//${windowHost}${isDev ? '/api' : ''}`;
 }
 
 export function get(url: string, param: any) {
