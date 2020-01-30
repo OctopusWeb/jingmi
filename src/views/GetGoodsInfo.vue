@@ -2,37 +2,37 @@
   <div class="GetGoodsInfo">
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商" v-if="getUserinfo.roleId === '1'">
-        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+        <el-select filterable clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="赞助商品">
-        <el-select clearable v-model="searchValue.productId" placeholder="赞助商品" size="small">
+        <el-select filterable clearable v-model="searchValue.productId" placeholder="赞助商品" size="small">
           <el-option v-for="(item, index) in goodsAll" :key="index"
           :label="item.goodsName" :value="item.goodsId"></el-option>
         </el-select>
       </el-form-item>
       <!-- <el-form-item label="投放城市">
-        <el-select v-model="searchValue.city" placeholder="投放城市" size="small">
+        <el-select filterable v-model="searchValue.city" placeholder="投放城市" size="small">
           <el-option label="区域一" value="shanghai"></el-option>
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="投放路线">
-        <el-select v-model="searchValue.busRoute" placeholder="投放路线" size="small">
+        <el-select filterable v-model="searchValue.busRoute" placeholder="投放路线" size="small">
           <el-option label="区域一" value="shanghai"></el-option>
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="设备">
-        <el-select v-model="searchValue.deviceNo" placeholder="设备" size="small">
+        <el-select filterable v-model="searchValue.deviceNo" placeholder="设备" size="small">
           <el-option label="区域一" value="shanghai"></el-option>
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>
       </el-form-item> -->
       <el-form-item label="状态">
-        <el-select clearable v-model="searchValue.status" placeholder="状态" size="small">
+        <el-select filterable clearable v-model="searchValue.status" placeholder="状态" size="small">
           <el-option v-for="item in statusList" :key="item.value" :label="item.label" :value="item.value"></el-option>
         </el-select>
       </el-form-item>
@@ -140,9 +140,9 @@ export default class GetGoodsInfo extends Vue {
   private page = 0;
   private goodsAll = [];
   private statusList = [
-    {value: 0, label: '初始化'},
-    {value: 1, label: '失败'},
-    {value: 2, label: '成功'},
+    {value: 0, label: '未领取'},
+    {value: 1, label: '成功'},
+    {value: 2, label: '失败'},
   ];
   private time: any = [];
   private merchantList: any = [];

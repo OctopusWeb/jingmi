@@ -8,6 +8,7 @@ import MessageList from './views/MessageList.vue';
 import Merchant from './views/Merchant.vue';
 import Advertising from './views/Advertising.vue';
 import UserList from './views/UserList.vue';
+import Jurisdiction from './views/Jurisdiction.vue';
 
 Vue.use(Router);
 
@@ -53,6 +54,11 @@ export default new Router({
       path: '/userList',
       name: 'userList',
       component: UserList,
+    },
+    {
+      path: '/jurisdiction',
+      name: 'jurisdiction',
+      component: Jurisdiction,
     },
   ],
 });

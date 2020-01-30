@@ -25,7 +25,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="赞助商" v-if="userInfo.roleId !== '1'">
-          <el-select clearable v-model="userInfo.sponsorId" placeholder="赞助商" size="small">
+          <el-select filterable clearable v-model="userInfo.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
           </el-select>

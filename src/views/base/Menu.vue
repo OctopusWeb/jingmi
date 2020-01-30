@@ -1,6 +1,7 @@
 <template>
   <div class="menu">
     <div class="logo">京米营销</div>
+    <div v-show="false">{{getUserinfo}}</div>
     <el-menu
       mode="vertical"
       background-color="#545c64"
@@ -8,7 +9,7 @@
       :default-active="active"
       @select="selectHandler"
       active-text-color="#ffd04b">
-      <el-menu-item v-for="(item, index) in menuList" 
+      <el-menu-item v-for="(item, index) in isShowList" 
       :key="index" :index="item.path" :disabled="item.path === 'merchant' && getUserinfo.roleId !== '1'">
         <i :class="item.icon"></i>
         <span slot="title">{{item.name}}</span>
@@ -55,9 +56,30 @@ export default class Menu extends Vue {
     {name: '赞助商管理', path: 'merchant', icon: 'el-icon-s-shop'},
     {name: '广告位管理', path: 'advertising', icon: 'el-icon-s-order'},
     {name: '用户管理', path: 'userList', icon: 'el-icon-s-custom'},
+    {name: '权限管理', path: 'jurisdiction', icon: 'el-icon-menu'},
   ];
+  private iconList: any = {
+    getGoodsInfo: 'el-icon-s-goods',
+    fansList: 'el-icon-star-on',
+    groupList: 'el-icon-s-goods',
+    messageList: 'el-icon-s-promotion',
+    merchant: 'el-icon-s-shop',
+    advertising: 'el-icon-s-order',
+    userList: 'el-icon-s-custom',
+    jurisdiction: 'el-icon-menu',
+  };
+  private isShowList: any = [];
   get getUserinfo() {
-    return this.$store.state.userInfo;
+    const userinfo = this.$store.state.userInfo;
+    userinfo.privileges.forEach((item: any) => {
+      const path = item.url.substring(1);
+      this.isShowList.push({
+        name: item.name,
+        path,
+        icon: this.iconList[path] || 'el-icon-s-tools',
+      });
+    })
+    return userinfo;
   }
   private selectHandler(path: string) {
     this.$store.dispatch('setMenuName', path);

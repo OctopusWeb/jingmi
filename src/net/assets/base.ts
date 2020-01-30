@@ -128,8 +128,17 @@ export async function addSponsorItemPoster(payload: any) {
   }
 }
 
-
-
+/* 权限管理 */
+export async function getSysRoleMenu(payload: any) {
+  return await post(`/sysRoleMenu/getPageList`, payload);
+}
+export async function setSysRoleMenu(id: number, active: number) {
+  if (active === 1) {
+    return await post(`/sysRoleMenu/active`, {id});
+  } else if (active === 2) {
+    return await post(`/sysRoleMenu/inactive`, {id});
+  }
+}
 
 
 export default {
@@ -161,6 +170,8 @@ export default {
   isOpenHandler,
   getPosterItem,
   addSponsorItemPoster,
+  getSysRoleMenu,
+  setSysRoleMenu,
 };
 
 

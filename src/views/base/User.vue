@@ -86,6 +86,7 @@ export default class User extends Vue {
     merchant: '商户管理',
     advertising: '广告位管理',
     userList: '用户管理',
+    jurisdiction: '权限管理',
   };
   get menuname() {
     return this.$store.state.menuname;

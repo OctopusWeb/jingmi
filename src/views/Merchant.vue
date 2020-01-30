@@ -7,7 +7,7 @@
       width="400px">
       <el-form :inline="true" :model="createGoodsValue" style="margin-bottom: -50px">
         <el-form-item label="赞助商品">
-          <el-select clearable v-model="createGoodsValue.goodsid" placeholder="赞助商品" size="small">
+          <el-select filterable clearable v-model="createGoodsValue.goodsid" placeholder="赞助商品" size="small">
             <el-option v-for="(item, index) in goodsAll" :key="index"
             :label="item.goodsName" :value="item.goodsId"></el-option>
           </el-select>

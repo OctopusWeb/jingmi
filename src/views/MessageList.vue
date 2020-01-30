@@ -7,7 +7,7 @@
       width="450px">
       <el-form :inline="true" :model="createValue" class="demo-form-inline">
       <el-form-item label="赞助商" v-show="getUserinfo.roleId === '1'">
-        <el-select clearable v-model="createValue.sponsorId" placeholder="赞助商" size="small">
+        <el-select filterable clearable v-model="createValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
@@ -32,12 +32,12 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="对象选择">
-          <el-select clearable v-model="createValue.recipientsVo.ids" multiple
+          <el-select filterable clearable v-model="createValue.recipientsVo.ids" multiple
            placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '0'">
             <el-option v-for="(item, index) in fanList" :key="index"
             :label="item.nickname" :value="item.deliveryId"></el-option>
           </el-select>
-          <el-select clearable v-model="createValue.recipientsVo.ids" multiple
+          <el-select filterable clearable v-model="createValue.recipientsVo.ids" multiple
           placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '1'">
             <el-option v-for="(item, index) in groupList" :key="index"
             :label="item.groupName" :value="item.id"></el-option>
@@ -54,7 +54,7 @@
     </el-dialog>
    <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商" v-if="getUserinfo.roleId === '1'">
-        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+        <el-select filterable clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>

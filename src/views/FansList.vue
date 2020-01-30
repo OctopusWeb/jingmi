@@ -35,7 +35,7 @@
       class="dialog"
       :visible.sync="dialogGroup"
       width="30%">
-        <el-select clearable v-model="changeGroupObj.groupId" placeholder="分组" size="small">
+        <el-select filterable clearable v-model="changeGroupObj.groupId" placeholder="分组" size="small">
           <el-option  v-for="(item, index) in groupList" :key="index"
            :label="item.groupName" :value="item.id"></el-option>
         </el-select>
@@ -46,19 +46,19 @@
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商" v-if="this.getUserinfo.roleId === '1'">
-        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+        <el-select filterable clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <!-- <el-form-item label="城市">
-        <el-select clearable v-model="searchValue.city" placeholder="城市" size="small">
+        <el-select filterable clearable v-model="searchValue.city" placeholder="城市" size="small">
           <el-option label="区域一" value="shanghai"></el-option>
           <el-option label="区域二" value="beijing"></el-option>
         </el-select>
       </el-form-item> -->
       <el-form-item label="性别">
-        <el-select clearable v-model="searchValue.sex" placeholder="性别" size="small">
+        <el-select filterable clearable v-model="searchValue.sex" placeholder="性别" size="small">
           <el-option label="男" value="1"></el-option>
           <el-option label="女" value="2"></el-option>
         </el-select>
@@ -70,7 +70,7 @@
         <el-input v-model="searchValue.phone" placeholder="手机号" size="small"></el-input>
       </el-form-item>
       <el-form-item label="分组">
-        <el-select clearable v-model="searchValue.groupId" placeholder="分组" size="small">
+        <el-select filterable clearable v-model="searchValue.groupId" placeholder="分组" size="small">
           <el-option  v-for="(item, index) in groupList" :key="index"
            :label="item.groupName" :value="item.id"></el-option>
         </el-select>
@@ -100,11 +100,15 @@
       </el-table-column>
       <el-table-column
         prop="phone"
-        label="手机号">
+        label="手机号" width="110">
+      </el-table-column>
+      <el-table-column
+        prop="aliasName"
+        label="赞助商">
       </el-table-column>
       <el-table-column
         prop="sex"
-        label="性别">
+        label="性别" width="50">
         <template slot-scope="scope">
           <span>{{scope.row.sex == 1 ? '男' : '女'}}</span>
         </template>
@@ -125,7 +129,7 @@
         prop="productName"
         label="领取礼品" width="250"/>
       <el-table-column
-        label="操作" width="250">
+        label="操作" width="170">
         <template slot-scope="scope">
           <a @click="settingHandler(scope.row)">推送营销短信</a>
           <a @click="infoHandler(scope.row)">详情</a>

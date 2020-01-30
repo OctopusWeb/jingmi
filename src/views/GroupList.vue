@@ -13,7 +13,7 @@
           <el-input v-model="createGroup.remark"></el-input>
         </el-form-item>
         <el-form-item label="赞助商" v-show="getUserinfo.roleId === '1'">
-          <el-select clearable v-model="createGroup.sponsorId" placeholder="赞助商" size="small">
+          <el-select filterable clearable v-model="createGroup.sponsorId" placeholder="赞助商" size="small">
             <el-option v-for="(item, index) in merchantList" :key="index" 
             :label="item.aliasName" :value="item.id"></el-option>
           </el-select>
@@ -26,7 +26,7 @@
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商" v-if="getUserinfo.roleId === '1'">
-        <el-select clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+        <el-select filterable clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
