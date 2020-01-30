@@ -99,6 +99,12 @@
         label="昵称">
       </el-table-column>
       <el-table-column
+        label="头像">
+        <template slot-scope="scope">
+          <img class="head" :src="scope.row.headimgUrl" alt="">
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="phone"
         label="手机号" width="110">
       </el-table-column>
@@ -150,6 +156,10 @@
 .FansList{
   padding: 20px;
   text-align: left;
+  .head{
+    width: 50px;
+    height: 50px;
+  }
   .dialog{
     .el-select{
       width: 100%;
