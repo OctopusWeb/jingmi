@@ -31,6 +31,13 @@
             <el-radio label="1">组</el-radio>
           </el-radio-group>
         </el-form-item>
+        <el-form-item label="模板选择">
+          <el-select @change="templeteChangeHandler" clearable v-model="createValue.template"
+           placeholder="模板选择" size="small">
+            <el-option v-for="(item, index) in templete" :key="index"
+            :label="item" :value="item"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="对象选择">
           <el-select filterable clearable v-model="createValue.recipientsVo.ids" multiple
            placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '0'">
@@ -70,6 +77,9 @@
         prop="deliveryNo"
         label="短信流水号"
         width="200">
+        <template slot-scope="scope">
+          {{scope.row.deliveryNo || '无'}}
+        </template>
       </el-table-column>
       <el-table-column
         prop="recipientsVo"
@@ -86,6 +96,9 @@
       <el-table-column
         prop="content"
         label="推送内容">
+        <template slot-scope="scope">
+          {{scope.row.content || '空'}}
+        </template>
       </el-table-column>
       <el-table-column
         prop="deliveryType"
@@ -99,7 +112,7 @@
         prop="status"
         label="状态" width="100">
         <template slot-scope="scope">
-          {{status[scope.row.status]}}
+          {{scope.row.statusDesc}}
         </template>
       </el-table-column>
       <!-- <el-table-column
@@ -122,6 +135,9 @@
 </template>
 
 <style lang="less">
+.el-select{
+  overflow: hidden;
+}
 .MessageList{
   padding: 20px;
   text-align: left;
@@ -177,6 +193,8 @@ export default class MessageList extends Vue {
   private status = ['未发送', '发送成功', '发送失败'];
   private fanList = [];
   private groupList = [];
+  private templete = [];
+  private templateid = '';
   private merchantList: any = {
     total: 0,
     records: [],
@@ -204,6 +222,7 @@ export default class MessageList extends Vue {
     this.getMerchant();
     this.getFanList();
     this.getGroupList();
+    this.getTemplete();
     const id = Number(<string> this.$route.query.id);
     const type = <string> this.$route.query.type;
     if (id) {
@@ -211,6 +230,9 @@ export default class MessageList extends Vue {
       this.createValue.recipientsVo.ids = [id];
       this.createValue.recipientsVo.type = type;
     }
+  }
+  private templeteChangeHandler(value: string) {
+    this.createValue.content = value;
   }
   private typeHandler() {
     this.createValue.recipientsVo.ids = [];
@@ -235,6 +257,15 @@ export default class MessageList extends Vue {
     net.base.getFanList({current: 0, size: 500}).then((data: any) => {
       if (data.data.code === 200) {
         this.fanList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getTemplete() {
+    net.base.getTemplete(null).then((data: any) => {
+      if (data.data.code === 200) {
+        this.templete = data.data.data;
       } else {
         this.$message.error(data.data.msg);
       }
@@ -298,7 +329,7 @@ export default class MessageList extends Vue {
       },
       content: undefined,
       status: 0,
-      sponsorId: this.getUserinfo.sponsorId,
+      sponsorId: this.getUserinfo.sponsorId === '-1' ? '' : this.getUserinfo.sponsorId,
     }
   }
 }

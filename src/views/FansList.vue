@@ -29,6 +29,9 @@
       <div class="row">
         <p>时间:</p><span>{{info.deliveryTime}}</span>
       </div>
+      <div class="row">
+        <p>领取详情:</p><a @click="subscriberIdHandler">点击查看</a>
+      </div>
     </el-dialog>
     <el-dialog
       title="更改分组"
@@ -69,12 +72,12 @@
       <el-form-item label="手机号">
         <el-input v-model="searchValue.phone" placeholder="手机号" size="small"></el-input>
       </el-form-item>
-      <el-form-item label="分组">
+      <!-- <el-form-item label="分组">
         <el-select filterable clearable v-model="searchValue.groupId" placeholder="分组" size="small">
           <el-option  v-for="(item, index) in groupList" :key="index"
            :label="item.groupName" :value="item.id"></el-option>
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item label="领取时间">
         <el-date-picker
           @change="changeHandler"
@@ -88,18 +91,25 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="searchHandler" size="small">查询</el-button>
+        <el-button type="primary" @click="groupHandler" size="small">{{isGroup ? '更改' : '批量设置'}}</el-button>
       </el-form-item>
     </el-form>
     <el-table
       :data="fanList.records"
+      @selection-change="handleSelectionChange"
       stripe
       style="width: 100%">
+      <el-table-column
+        v-if="isGroup"
+        type="selection"
+        width="55">
+      </el-table-column>
       <el-table-column
         prop="nickname"
         label="昵称">
       </el-table-column>
       <el-table-column
-        label="头像">
+        label="头像" width="80">
         <template slot-scope="scope">
           <img class="head" :src="scope.row.headimgUrl" alt="">
         </template>
@@ -125,15 +135,19 @@
       </el-table-column>
       <el-table-column
         prop="groupId"
-        label="分组">
+        label="分组" width="150">
         <template slot-scope="scope">
           <span>{{scope.row.groupName || '未分组'}}</span>
-          <a style="margin-left: 10px" @click="changeGroupHanlder(scope.row)">更改</a>
+          <a v-if="!isGroup" style="margin-left: 10px" @click="changeGroupHanlder(scope.row)">更改</a>
         </template>
       </el-table-column>
       <el-table-column
         prop="productName"
-        label="领取礼品" width="250"/>
+        label="领取礼品" width="150"/>
+      <el-table-column
+        prop="deliveryTime"
+        label="领取时间"  width="150">
+      </el-table-column>
       <el-table-column
         label="操作" width="170">
         <template slot-scope="scope">
@@ -209,11 +223,13 @@ import net from '@/net/index';
 export default class FansList extends Vue {
   private page = 0;
   private time = [];
+  private isGroup = false;
   private merchantList: any = [];
   private dialogGroup = false;
   private showInfo = false;
-  private info = {};
+  private info: any = {};
   private groupList = [];
+  private ids: any = [];
   private changeGroupObj: any = {};
   private searchValue: any = {
     sponsorId: undefined,
@@ -234,10 +250,36 @@ export default class FansList extends Vue {
   private mounted() {
     this.getFanList();
     this.getMerchant();
-    this.getGroupList();
   }
   get getUserinfo() {
     return this.$store.state.userInfo;
+  }
+  private groupHandler() {
+    if (!this.isGroup || this.ids === []) {
+      this.isGroup = true;
+      this.ids = [];
+    } else {
+      let sponsorId = this.ids[0].sponsorId;
+      let idList: any = [];
+      const isOnesponsorId = this.ids.every((item: any) => {
+        idList.push(item.subscriberId);
+        return item.sponsorId === sponsorId;
+      })
+      if (isOnesponsorId) {
+        this.changeGroupObj = {
+          groupId: this.ids[0].groupId,
+          sponsorId: this.ids[0].sponsorId,
+          subscriberIds: idList,
+        }
+      } else {
+        this.$message.error('请选择相同赞助商');
+      }
+      this.getGroupList(sponsorId);
+      // this.getGroupList();
+    }
+  }
+  private handleSelectionChange(rowlist: any[]) {
+    this.ids = rowlist;
   }
   private currentChange(page: number) {
     this.searchValue.current = page;
@@ -251,6 +293,14 @@ export default class FansList extends Vue {
       this.searchValue.deliveryTimeStart = undefined;
       this.searchValue.deliveryTimeEnd = undefined;
     }
+  }
+  private subscriberIdHandler() {
+    console.log(this.info.sponsorId);
+    console.log(this.info.subscriberId);
+    this.$router.push({
+      name: 'getGoodsInfo',
+      query: {sponsorId: this.info.sponsorId, subscriberId: this.info.subscriberId},
+    });
   }
   private format(data: Date, fmt: string){
     const o: any = {
@@ -299,18 +349,23 @@ export default class FansList extends Vue {
   }
   private changeGroupHanlder(row: any) {
     this.changeGroupObj = row;
-    this.dialogGroup = true;
+    this.getGroupList();
   }
   private changeGroup() {
     this.dialogGroup = false;
-    const data = {
+    const data: any = {
       groupId: this.changeGroupObj.groupId,
       sponsorId: this.changeGroupObj.sponsorId,
-      subscriberId: this.changeGroupObj.subscriberId
+    };
+    if (this.changeGroupObj.subscriberIds) {
+      data.subscriberIds = this.changeGroupObj.subscriberIds;
+    } else {
+      data.subscriberId = this.changeGroupObj.subscriberId;
     }
     net.base.updateGroup(data).then((data: any) => {
       if (data.data.code === 200) {
         this.getFanList();
+        this.isGroup = false;
       } else {
         this.$message.error(data.data.msg);
       }
@@ -330,9 +385,12 @@ export default class FansList extends Vue {
       return item.id === id;
     })
   }
-  private getGroupList() {
-    net.base.getGroup({size: 500, current: 0}).then((data: any) => {
+  private getGroupList(sponsorId ?: any) {
+    const data: any = {size: 500, current: 0};
+    data.sponsorId = sponsorId || this.changeGroupObj.sponsorId;
+    net.base.getGroup(data).then((data: any) => {
       if (data.data.code === 200) {
+        this.dialogGroup = true;
         this.groupList = data.data.data.records;
       } else {
         this.$message.error(data.data.msg);

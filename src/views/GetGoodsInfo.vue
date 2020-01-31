@@ -2,7 +2,8 @@
   <div class="GetGoodsInfo">
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商" v-if="getUserinfo.roleId === '1'">
-        <el-select filterable clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+        <el-select filterable clearable @change="changHandle"
+        v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
@@ -10,7 +11,7 @@
       <el-form-item label="赞助商品">
         <el-select filterable clearable v-model="searchValue.productId" placeholder="赞助商品" size="small">
           <el-option v-for="(item, index) in goodsAll" :key="index"
-          :label="item.goodsName" :value="item.goodsId"></el-option>
+          :label="item.productName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
       <!-- <el-form-item label="投放城市">
@@ -69,7 +70,7 @@
       </el-table-column>
       <el-table-column
         prop="busRoute"
-        label="投放路线">
+        label="投放路线" width="100">
       </el-table-column>
       <el-table-column
         prop="deviceNo"
@@ -81,15 +82,19 @@
       </el-table-column>
       <el-table-column
         prop="nickname"
-        label="领取人" width="150">
+        label="领取人" width="70">
       </el-table-column>
       <el-table-column
         prop="deliveryTime"
         label="领取时间" width="150">
       </el-table-column>
       <el-table-column
+        prop="scanTime"
+        label="扫码时间" width="150">
+      </el-table-column>
+      <el-table-column
         prop="status"
-        label="状态" width="150">
+        label="状态" width="70">
         <template slot-scope="scope">
           {{statusList[scope.row.status].label}}
         </template>
@@ -139,6 +144,7 @@ import net from '@/net/index';
 export default class GetGoodsInfo extends Vue {
   private page = 0;
   private goodsAll = [];
+  private sponsorId = null;
   private statusList = [
     {value: 0, label: '未领取'},
     {value: 1, label: '成功'},
@@ -165,9 +171,11 @@ export default class GetGoodsInfo extends Vue {
     return this.$store.state.userInfo;
   }
   private mounted() {
-    this.getGoodsList();
+    const sponsorId = <string> this.$route.query.sponsorId;
+    const subscriberId = <string> this.$route.query.subscriberId;
+    this.getGoodsList({sponsorId, subscriberId});
     this.getMerchant();
-    this.getGoodsAll();
+    // this.getGoodsAll();
   }
   private currentChange(page: number) {
     this.searchValue.current = page;
@@ -201,12 +209,24 @@ export default class GetGoodsInfo extends Vue {
     }
     return fmt;
   };
-  private getGoodsList() {
+  private changHandle(value: number) {
+    this.sponsorHandler(value);
+  }
+  private sponsorHandler(id: number) {
+    net.base.getSponsorProduct({size: 500, current: 0, sponsorId: id}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.goodsAll = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getGoodsList(searchValue?: any) {
     this.changeHandler();
     if (this.getUserinfo.roleId === '2') {
       this.searchValue.sponsorId = this.getUserinfo.sponsorId;
     }
-    net.base.getGoodsList(this.searchValue).then((data: any) => {
+    net.base.getGoodsList(searchValue || this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
         this.goodsTable = data.data.data;
       } else {

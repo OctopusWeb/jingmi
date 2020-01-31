@@ -89,6 +89,9 @@ export async function getMessageList(payload: any) {
 export async function addMessageList(payload: any) {
   return await post(`/web/api/messageDelivery/add`, payload);
 }
+export async function getTemplete(payload: any) {
+  return await get(`/web/api/messageDelivery/templates`, payload);
+}
 
 /* 广告位管理 */
 export async function getSponsorPosterList(payload: any) {
@@ -160,6 +163,7 @@ export default {
   getFanList,
   getMessageList,
   addMessageList,
+  getTemplete,
   getSponsorProduct,
   addSponsorProduct,
   getAdvertisingList,

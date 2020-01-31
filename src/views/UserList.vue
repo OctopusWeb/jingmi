@@ -18,7 +18,7 @@
         <el-form-item label="备注">
           <el-input type="textarea" v-model="userInfo.remark" placeholder="请输入备注"></el-input>
         </el-form-item>
-        <el-form-item label="备注">
+        <el-form-item label="角色">
           <el-radio-group v-model="userInfo.roleId">
             <el-radio label="1">管理员</el-radio>
             <el-radio label="2">赞助商</el-radio>
@@ -204,6 +204,9 @@ export default class UserList extends Vue {
     this.userInfo.password && this.userInfo.password.length >= 2 &&
     this.userInfo.username && this.userInfo.username.length >= 2
     ) {
+      if (this.userInfo.roleId === 1) {
+        this.userInfo.sponsorId = '-1';
+      }
       net.base.addUser(this.userInfo).then((data: any) => {
         if (data.data.code === 200) {
           this.$message({
