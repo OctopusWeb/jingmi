@@ -273,6 +273,10 @@ export default class Advertising extends Vue {
   private mounted() {
     this.getSponsorPosterList();
     this.getMerchant();
+    if (this.getUserinfo.roleId === '2') {
+      this.sponsorHandler(this.getUserinfo.sponsorId);
+      this.searchValue.sponsorId = this.getUserinfo.sponsorId;
+    }
   }
   private getSponsorPosterList() {
     if (this.getUserinfo.roleId === '2') {

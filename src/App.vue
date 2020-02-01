@@ -110,6 +110,10 @@ export default class App extends Vue {
           message: '登陆成功',
           type: 'success'
         });
+        this.$router.push({
+          name: 'getGoodsInfo',
+        });
+        this.$store.dispatch('setMenuName', 'getGoodsInfo');
       } else {
         this.$message.error(data.data.msg);
       }

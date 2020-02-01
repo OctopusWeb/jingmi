@@ -43,7 +43,7 @@
           <el-select filterable clearable v-model="createValue.recipientsVo.ids" multiple
            placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '0'">
             <el-option v-for="(item, index) in fanList" :key="index"
-            :label="item.nickname" :value="item.subscriberId"></el-option>
+            :label="item.nickname" :value="item.id"></el-option>
           </el-select>
           <el-select filterable clearable v-model="createValue.recipientsVo.ids" multiple
           placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '1'">
@@ -221,7 +221,9 @@ export default class MessageList extends Vue {
   private mounted() {
     this.getMessageList();
     this.getMerchant();
-    this.getFanList();
+    if (this.getUserinfo.roleId === '2') {
+      this.getFanList();
+    }
     this.getGroupList();
     this.getTemplete();
     const id = Number(<string> this.$route.query.id);
@@ -237,6 +239,7 @@ export default class MessageList extends Vue {
   }
   private changeHandler() {
     this.getGroupList();
+    this.getFanList();
   }
   private typeHandler() {
     this.createValue.recipientsVo.ids = [];
@@ -274,7 +277,7 @@ export default class MessageList extends Vue {
     data.sponsorId = this.createValue.sponsorId;
     net.base.getFansList(data).then((data: any) => {
       if (data.data.code === 200) {
-        this.fanList = data.data.data.records;
+        this.fanList = data.data.data;
       } else {
         this.$message.error(data.data.msg);
       }
