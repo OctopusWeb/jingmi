@@ -42,7 +42,7 @@
           <el-select filterable clearable v-model="createValue.recipientsVo.ids" multiple
            placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '0'">
             <el-option v-for="(item, index) in fanList" :key="index"
-            :label="item.nickname" :value="item.deliveryId"></el-option>
+            :label="item.nickname" :value="item.subscriberId"></el-option>
           </el-select>
           <el-select filterable clearable v-model="createValue.recipientsVo.ids" multiple
           placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '1'">
@@ -74,7 +74,7 @@
       stripe
       style="width: 100%">
       <el-table-column
-        prop="deliveryNo"
+        prop="id"
         label="短信流水号"
         width="200">
         <template slot-scope="scope">
@@ -201,7 +201,7 @@ export default class MessageList extends Vue {
   };
   private createValue: any = {
     deliveryType: '0',
-    deliveryTime: undefined,
+    deliveryTimeStr: undefined,
     recipientsVo: {
       type: '0',
       ids: [],
@@ -246,7 +246,7 @@ export default class MessageList extends Vue {
     let nameList: any = [];
     ids.forEach(id => {
       list.forEach((item: any) => {
-        if (id == item.deliveryId || id == item.id) {
+        if (id == item.subscriberId || id == item.id) {
           nameList.push(item.nickname || item.groupName);
         }
       });
