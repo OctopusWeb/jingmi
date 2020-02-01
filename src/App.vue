@@ -81,7 +81,7 @@ import { Component, Vue } from 'vue-property-decorator';
 import Menu from '@/views/base/Menu.vue';
 import User from '@/views/base/User.vue';
 import net from '@/net/index';
-import instance from '@/net/common'
+import instance from '@/net/common';
 
 @Component({
   components: { Menu, User },

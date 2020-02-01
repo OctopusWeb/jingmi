@@ -1,6 +1,6 @@
 <template>
   <div class="GetGoodsInfo">
-    <el-form :inline="true" :model="searchValue" class="demo-form-inline">
+    <el-form :inline="true" :model="searchValue" class="demo-form-inline" v-if="!initValue">
       <el-form-item label="赞助商" v-if="getUserinfo.roleId === '1'">
         <el-select filterable clearable @change="changHandle"
         v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
@@ -163,6 +163,7 @@ export default class GetGoodsInfo extends Vue {
     size: 10,
     current: 1,
   };
+  private initValue: any = false;
   private goodsTable = {
     total: 0,
     records: [],
@@ -173,7 +174,10 @@ export default class GetGoodsInfo extends Vue {
   private mounted() {
     const sponsorId = <string> this.$route.query.sponsorId;
     const subscriberId = <string> this.$route.query.subscriberId;
-    this.getGoodsList({sponsorId, subscriberId});
+    if (sponsorId) {
+      this.initValue = {sponsorId, subscriberId};
+    }
+    this.getGoodsList();
     this.getMerchant();
     // this.getGoodsAll();
   }
@@ -221,12 +225,12 @@ export default class GetGoodsInfo extends Vue {
       }
     });
   }
-  private getGoodsList(searchValue?: any) {
+  private getGoodsList() {
     this.changeHandler();
     if (this.getUserinfo.roleId === '2') {
       this.searchValue.sponsorId = this.getUserinfo.sponsorId;
     }
-    net.base.getGoodsList(searchValue || this.searchValue).then((data: any) => {
+    net.base.getGoodsList(this.initValue || this.searchValue).then((data: any) => {
       if (data.data.code === 200) {
         this.goodsTable = data.data.data;
       } else {

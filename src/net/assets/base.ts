@@ -81,6 +81,9 @@ export async function addGroup(payload: any) {
 export async function getFanList(payload: any) {
   return await post(`/web/api/subscriber/getPageList`, payload);
 }
+export async function getFansList(payload: any) {
+  return await post(`/web/api/subscriber/getBySponsor`, payload);
+}
 
 /* 短信管理 */
 export async function getMessageList(payload: any) {
@@ -161,6 +164,7 @@ export default {
   deletedGroup,
   addGroup,
   getFanList,
+  getFansList,
   getMessageList,
   addMessageList,
   getTemplete,

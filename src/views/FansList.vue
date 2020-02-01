@@ -72,12 +72,12 @@
       <el-form-item label="手机号">
         <el-input v-model="searchValue.phone" placeholder="手机号" size="small"></el-input>
       </el-form-item>
-      <!-- <el-form-item label="分组">
+      <el-form-item label="分组">
         <el-select filterable clearable v-model="searchValue.groupId" placeholder="分组" size="small">
-          <el-option  v-for="(item, index) in groupList" :key="index"
+          <el-option  v-for="(item, index) in groupAllList" :key="index"
            :label="item.groupName" :value="item.id"></el-option>
         </el-select>
-      </el-form-item> -->
+      </el-form-item>
       <el-form-item label="领取时间">
         <el-date-picker
           @change="changeHandler"
@@ -243,6 +243,7 @@ export default class FansList extends Vue {
     size: 10,
     current: 0,
   };
+  private groupAllList: any = []
   private fanList = {
     total: 0,
     records: [],
@@ -250,6 +251,7 @@ export default class FansList extends Vue {
   private mounted() {
     this.getFanList();
     this.getMerchant();
+    this.getAllGroupList();
   }
   get getUserinfo() {
     return this.$store.state.userInfo;
@@ -295,8 +297,6 @@ export default class FansList extends Vue {
     }
   }
   private subscriberIdHandler() {
-    console.log(this.info.sponsorId);
-    console.log(this.info.subscriberId);
     this.$router.push({
       name: 'getGoodsInfo',
       query: {sponsorId: this.info.sponsorId, subscriberId: this.info.subscriberId},
@@ -392,6 +392,19 @@ export default class FansList extends Vue {
       if (data.data.code === 200) {
         this.dialogGroup = true;
         this.groupList = data.data.data.records;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
+  private getAllGroupList(sponsorId ?: any) {
+    const data: any = {size: 500, current: 0};
+    if (this.getUserinfo.sponsorId !== '-1') {
+      data.sponsorId = this.getUserinfo.sponsorId;
+    }
+    net.base.getGroup(data).then((data: any) => {
+      if (data.data.code === 200) {
+        this.groupAllList = data.data.data.records;
       } else {
         this.$message.error(data.data.msg);
       }

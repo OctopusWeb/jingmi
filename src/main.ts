@@ -9,6 +9,14 @@ Vue.config.productionTip = false;
 
 Vue.use(ElementUI);
 
+router.beforeEach((to, from, next) => {
+  const privileges = store.state.userInfo.privileges || [];
+  privileges.forEach((item: any) => {
+    if (item.url.substring(1) === to.name) {
+      next();
+    }
+  });
+});
 new Vue({
   router,
   store,

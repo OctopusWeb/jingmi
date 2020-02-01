@@ -7,7 +7,8 @@
       width="450px">
       <el-form :inline="true" :model="createValue" class="demo-form-inline">
       <el-form-item label="赞助商" v-show="getUserinfo.roleId === '1'">
-        <el-select filterable clearable v-model="createValue.sponsorId" placeholder="赞助商" size="small">
+        <el-select filterable clearable @change="changeHandler"
+        v-model="createValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
@@ -76,7 +77,7 @@
       <el-table-column
         prop="id"
         label="短信流水号"
-        width="200">
+        width="150">
         <template slot-scope="scope">
           {{scope.row.deliveryNo || '无'}}
         </template>
@@ -91,7 +92,7 @@
       </el-table-column>
       <el-table-column
         prop="deliveryTime"
-        label="推送时间">
+        label="推送时间" width="150">
       </el-table-column>
       <el-table-column
         prop="content"
@@ -110,7 +111,7 @@
       </el-table-column>
        <el-table-column
         prop="status"
-        label="状态" width="100">
+        label="状态" width="200">
         <template slot-scope="scope">
           {{scope.row.statusDesc}}
         </template>
@@ -234,6 +235,9 @@ export default class MessageList extends Vue {
   private templeteChangeHandler(value: string) {
     this.createValue.content = value;
   }
+  private changeHandler() {
+    this.getGroupList();
+  }
   private typeHandler() {
     this.createValue.recipientsVo.ids = [];
   }
@@ -253,8 +257,22 @@ export default class MessageList extends Vue {
     });
     return nameList.join(',');
   }
+  // private getFanList() {
+  //   net.base.getFansList({current: 0, size: 500}).then((data: any) => {
+  //     if (data.data.code === 200) {
+  //       this.fanList = data.data.data.records;
+  //     } else {
+  //       this.$message.error(data.data.msg);
+  //     }
+  //   });
+  // }
   private getFanList() {
-    net.base.getFanList({current: 0, size: 500}).then((data: any) => {
+    const data: any = {current: 0, size: 500};
+    if (this.getUserinfo.roleId === '2') {
+      this.createValue.sponsorId = this.getUserinfo.sponsorId;
+    }
+    data.sponsorId = this.createValue.sponsorId;
+    net.base.getFansList(data).then((data: any) => {
       if (data.data.code === 200) {
         this.fanList = data.data.data.records;
       } else {
@@ -272,7 +290,12 @@ export default class MessageList extends Vue {
     });
   }
   private getGroupList() {
-    net.base.getGroup({current: 0, size: 500}).then((data: any) => {
+    const data: any = {current: 0, size: 500};
+    if (this.getUserinfo.roleId === '2') {
+      this.createValue.sponsorId = this.getUserinfo.sponsorId;
+    }
+    data.sponsorId = this.createValue.sponsorId;
+    net.base.getGroup(data).then((data: any) => {
       if (data.data.code === 200) {
         this.groupList = data.data.data.records;
       } else {

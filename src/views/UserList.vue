@@ -204,7 +204,7 @@ export default class UserList extends Vue {
     this.userInfo.password && this.userInfo.password.length >= 2 &&
     this.userInfo.username && this.userInfo.username.length >= 2
     ) {
-      if (this.userInfo.roleId === 1) {
+      if (this.userInfo.roleId === '1') {
         this.userInfo.sponsorId = '-1';
       }
       net.base.addUser(this.userInfo).then((data: any) => {

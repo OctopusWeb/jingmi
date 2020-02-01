@@ -187,7 +187,7 @@ export default class GroupList extends Vue {
         this.dialogGroup = false;
         this.getGroupList();
         this.$message({
-          message: this.createGroup.id || this.createGroup.id !== '' ? '修改成功' : '添加成功',
+          message: '设置成功',
           type: 'success'
         });
       } else {
