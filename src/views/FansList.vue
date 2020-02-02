@@ -312,7 +312,7 @@ export default class FansList extends Vue {
     this.ids = rowlist;
   }
   private productNameHandler(row: any) {
-    net.base.getsponsorProductInfo({id: row.subscriberId}).then((data: any) => {
+    net.base.getsponsorProductInfo({id: row.productId}).then((data: any) => {
       if (data.data.code === 200) {
         this.goodsinfo = data.data.data;
         this.showGoodsInfo = true;
