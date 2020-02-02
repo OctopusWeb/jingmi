@@ -72,17 +72,13 @@ export default class Menu extends Vue {
   get getUserinfo() {
     const userinfo = this.$store.state.userInfo;
 
-    this.menuList.forEach(menu=>{
-      userinfo.privileges.forEach((item: any) => {
-        const path = item.url.substring(1);
-        if (menu.path === path){
-          this.isShowList.push({
-            name: item.name,
-            path,
-            icon: this.iconList[path] || 'el-icon-s-tools',
-          });
-        }
-      })
+    userinfo.privileges.forEach((item: any) => {
+      const path = item.url.substring(1);
+      this.isShowList.push({
+        name: item.name,
+        path,
+        icon: this.iconList[path] || 'el-icon-s-tools',
+      });
     });
     return userinfo;
   }
