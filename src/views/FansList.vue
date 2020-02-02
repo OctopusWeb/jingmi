@@ -110,6 +110,7 @@
       <el-form-item>
         <el-button type="primary" @click="searchHandler" size="small">查询</el-button>
         <el-button type="primary" @click="groupHandler" size="small">{{isGroup ? '更改' : '批量设置分组'}}</el-button>
+        <el-button v-if="isGroup" @click="() => {this.isGroup = false}" type="primary" size="small">取消</el-button>
       </el-form-item>
     </el-form>
     <el-table

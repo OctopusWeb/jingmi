@@ -57,7 +57,7 @@
           <el-input type="textarea" v-model="createValue.content"></el-input>
         </el-form-item>
         <el-form-item label="提示">
-          <el-row>模板短信推送，请将{}替换为您要推送的短信内容</el-row>
+          <span class="tip">模板短信推送，请将{}替换为您要推送的短信内容，{10}代表最多替换为10个汉字，请勿修改其他内容，否则无法提交。例如：尊敬的用户您好！{S30}更多活动请咨询{S20}，可以替换为：尊敬的用户您好！本店将推出新春买一送一大礼包活动，请到各门店参与！更多活动请咨询010-88886666。</span>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -180,6 +180,15 @@
   .el-pagination{
     text-align: right;
     margin: 20px;
+  }
+  .tip{
+    font-size: 10px;
+    line-height: 16px !important;
+    width: 300px;
+    margin-left: 70px;
+    display: inline-block;
+    margin-top: -30px;
+    color: #909399;
   }
 }
 </style>
