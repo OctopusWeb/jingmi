@@ -15,7 +15,7 @@
         <p>添加时间:</p><span>{{goodsinfo.gmtCreate}}</span>
       </div>
       <div class="row">
-        <p>图片:</p><span><img :src="goodsinfo.productImage" alt=""></span>
+        <p>图片:</p><span><img class="goodInfo" :src="goodsinfo.productImage" alt=""></span>
       </div>
     </el-dialog>
     <el-dialog
@@ -210,6 +210,9 @@
       width: 75px;
       text-align: right;
     }
+    span{
+      max-width: 100%;
+    }
   }
   a{
     color: #409EFF;
@@ -232,6 +235,9 @@
   .el-pagination{
     text-align: right;
     margin: 20px;
+  }
+  .goodInfo{
+    max-width: 200px;
   }
 }
 </style>

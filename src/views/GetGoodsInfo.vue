@@ -180,6 +180,7 @@ export default class GetGoodsInfo extends Vue {
     this.getGoodsList();
     this.getMerchant();
     // this.getGoodsAll();
+    this.sponsorHandler();
   }
   private currentChange(page: number) {
     this.searchValue.current = page;
@@ -216,10 +217,11 @@ export default class GetGoodsInfo extends Vue {
   private changHandle(value: number) {
     this.sponsorHandler(value);
   }
-  private sponsorHandler(id: number) {
-    net.base.getSponsorProduct({size: 500, current: 0, sponsorId: id}).then((data: any) => {
+  private sponsorHandler(id?: number) {
+    net.base.getSponsorProduct({size: 500, current: 0, sponsorId: id || this.getUserinfo.sponsorId}).then((data: any) => {
       if (data.data.code === 200) {
         this.goodsAll = data.data.data.records;
+        console.log(this.goodsAll);
       } else {
         this.$message.error(data.data.msg);
       }
@@ -247,14 +249,14 @@ export default class GetGoodsInfo extends Vue {
       }
     });
   }
-  private getGoodsAll() {
-    net.base.getGoodsAll().then((data: any) => {
-      if (data.data.code === 200) {
-        this.goodsAll = data.data.data;
-      } else {
-        this.$message.error(data.data.msg);
-      }
-    });
-  }
+  // private getGoodsAll() {
+  //   net.base.getGoodsAll().then((data: any) => {
+  //     if (data.data.code === 200) {
+  //       this.goodsAll = data.data.data;
+  //     } else {
+  //       this.$message.error(data.data.msg);
+  //     }
+  //   });
+  // }
 }
 </script>
