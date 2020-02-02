@@ -40,15 +40,17 @@
           </el-select>
         </el-form-item>
         <el-form-item label="对象选择">
-          <el-select filterable clearable v-model="createValue.recipientsVo.ids" multiple
+          <el-select filterable clearable v-model="createValue.recipientsVo.recipients" multiple
+          value-key="id"
            placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '0'">
-            <el-option v-for="(item, index) in fanList" :key="index"
-            :label="item.nickname" :value="item.id"></el-option>
+            <el-option v-for="(item) in fanList" :key="item.id"
+            :label="item.name" :value="item"></el-option>
           </el-select>
-          <el-select filterable clearable v-model="createValue.recipientsVo.ids" multiple
+          <el-select filterable clearable v-model="createValue.recipientsVo.recipients" multiple
+          value-key="id"
           placeholder="对象" size="small" v-if="createValue.recipientsVo.type === '1'">
-            <el-option v-for="(item, index) in groupList" :key="index"
-            :label="item.groupName" :value="item.id"></el-option>
+            <el-option v-for="(item) in groupList" :key="item.id"
+            :label="item.name" :value="item"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="推送内容">
@@ -87,7 +89,7 @@
         label="推送对象(用户/分组)">
         <template slot-scope="scope">
           {{scope.row.recipientsVo.type == '0' ? '个人:' : '组:'}}
-          {{getValueById(scope.row.recipientsVo.ids, scope.row.recipientsVo.type)}}
+          {{getValueById(scope.row.recipientsVo.recipients || [])}}
         </template>
       </el-table-column>
       <el-table-column
@@ -205,7 +207,7 @@ export default class MessageList extends Vue {
     deliveryTimeStr: undefined,
     recipientsVo: {
       type: '0',
-      ids: [],
+      recipients: [],
     },
     content: undefined,
     status: 0,
@@ -230,7 +232,7 @@ export default class MessageList extends Vue {
     const type = <string> this.$route.query.type;
     if (id) {
       this.dialogMessage = true;
-      this.createValue.recipientsVo.ids = [id];
+      this.createValue.recipientsVo.recipients = [{id, name}];
       this.createValue.recipientsVo.type = type;
     }
   }
@@ -242,21 +244,16 @@ export default class MessageList extends Vue {
     this.getFanList();
   }
   private typeHandler() {
-    this.createValue.recipientsVo.ids = [];
+    this.createValue.recipientsVo.recipients = [];
   }
   private currentChange(page: number) {
     this.searchValue.current = page;
     this.getMessageList();
   }
-  private getValueById(ids: string[], type: number) {
-    const list = type == 0 ?  this.fanList : this.groupList;
+  private getValueById(recipients: any[] = []) {
     let nameList: any = [];
-    ids.forEach(id => {
-      list.forEach((item: any) => {
-        if (id == item.subscriberId || id == item.id) {
-          nameList.push(item.nickname || item.groupName);
-        }
-      });
+    recipients.forEach(item => {
+      nameList.push(item.name);
     });
     return nameList.join(',');
   }
@@ -277,7 +274,10 @@ export default class MessageList extends Vue {
     data.sponsorId = this.createValue.sponsorId;
     net.base.getFansList(data).then((data: any) => {
       if (data.data.code === 200) {
-        this.fanList = data.data.data;
+        const fanList = data.data.data;
+        this.fanList = fanList.map((item: any) => {
+          return {id: item.id, name: item.nickname};
+        });
       } else {
         this.$message.error(data.data.msg);
       }
@@ -300,7 +300,10 @@ export default class MessageList extends Vue {
     data.sponsorId = this.createValue.sponsorId;
     net.base.getGroup(data).then((data: any) => {
       if (data.data.code === 200) {
-        this.groupList = data.data.data.records;
+        const groupList = data.data.data.records;
+        this.groupList = groupList.map((item: any) => {
+          return {id: item.id, name: item.groupName};
+        });
       } else {
         this.$message.error(data.data.msg);
       }
@@ -351,7 +354,7 @@ export default class MessageList extends Vue {
       deliveryTime: undefined,
       recipientsVo: {
         type: '0',
-        ids: [],
+        recipients: [],
       },
       content: undefined,
       status: 0,

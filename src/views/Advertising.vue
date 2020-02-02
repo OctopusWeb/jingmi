@@ -12,7 +12,7 @@
         <el-form-item label="链接地址">
           <el-input size="mini" placeholder="连接地址" v-model="createGoodsValue.refUrl"></el-input>
         </el-form-item>
-         <el-form-item label="广告图片">
+        <el-form-item label="广告图片">
           <el-upload
             action="/upload/img"
             :on-success="successHandler"
@@ -313,6 +313,7 @@ export default class Advertising extends Vue {
     this.getSponsorPosterList();
   }
   private createGoodsHandler(displayPage: number) {
+    this.fileList = [];
     this.showAdvertisingImage = true;
     this.createGoodsValue = {
       id: undefined,
@@ -321,7 +322,7 @@ export default class Advertising extends Vue {
       slogan: undefined,
       sponsorPosterId: this.selectedId,
       displayPage,
-    }
+    };
   }
   private addHandler(row: any){
     if (this.createValue.roleId === '1') {

@@ -67,7 +67,7 @@
     </el-dialog>
     <el-form :inline="true" :model="searchValue" class="demo-form-inline">
       <el-form-item label="赞助商" v-if="this.getUserinfo.roleId === '1'">
-        <el-select filterable clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
+        <el-select filterable @change="sponsorHandler" clearable v-model="searchValue.sponsorId" placeholder="赞助商" size="small">
           <el-option v-for="(item, index) in merchantList" :key="index" 
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
@@ -304,6 +304,9 @@ export default class FansList extends Vue {
       this.getGroupList(sponsorId);
       // this.getGroupList();
     }
+  }
+  private sponsorHandler(value: number) {
+    console.log(value);
   }
   private handleSelectionChange(rowlist: any[]) {
     this.ids = rowlist;
