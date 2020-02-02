@@ -9,6 +9,12 @@ module.exports = {
         pathRewrite: {
           "^/api": "/"
         },
+      },
+      '/login': {
+        target: 'http://49.233.92.117:8001/',
+        pathRewrite: {
+          "^/api": "/"
+        },
       }
     }
   },

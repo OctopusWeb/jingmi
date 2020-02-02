@@ -53,8 +53,8 @@ export default class Menu extends Vue {
     {name: '粉丝管理', path: 'fansList', icon: 'el-icon-star-on'},
     {name: '粉丝分组', path: 'groupList', icon: 'el-icon-s-grid'},
     {name: '短信营销', path: 'messageList', icon: 'el-icon-s-promotion'},
-    {name: '赞助商管理', path: 'merchant', icon: 'el-icon-s-shop'},
     {name: '广告位管理', path: 'advertising', icon: 'el-icon-s-order'},
+    {name: '赞助商管理', path: 'merchant', icon: 'el-icon-s-shop'},
     {name: '用户管理', path: 'userList', icon: 'el-icon-s-custom'},
     {name: '权限管理', path: 'jurisdiction', icon: 'el-icon-menu'},
   ];
@@ -63,22 +63,27 @@ export default class Menu extends Vue {
     fansList: 'el-icon-star-on',
     groupList: 'el-icon-s-goods',
     messageList: 'el-icon-s-promotion',
-    merchant: 'el-icon-s-shop',
     advertising: 'el-icon-s-order',
+    merchant: 'el-icon-s-shop',
     userList: 'el-icon-s-custom',
     jurisdiction: 'el-icon-menu',
   };
   private isShowList: any = [];
   get getUserinfo() {
     const userinfo = this.$store.state.userInfo;
-    userinfo.privileges.forEach((item: any) => {
-      const path = item.url.substring(1);
-      this.isShowList.push({
-        name: item.name,
-        path,
-        icon: this.iconList[path] || 'el-icon-s-tools',
-      });
-    })
+
+    this.menuList.forEach(menu=>{
+      userinfo.privileges.forEach((item: any) => {
+        const path = item.url.substring(1);
+        if (menu.path === path){
+          this.isShowList.push({
+            name: item.name,
+            path,
+            icon: this.iconList[path] || 'el-icon-s-tools',
+          });
+        }
+      })
+    });
     return userinfo;
   }
   private selectHandler(path: string) {

@@ -56,6 +56,9 @@
         <el-form-item label="推送内容">
           <el-input type="textarea" v-model="createValue.content"></el-input>
         </el-form-item>
+        <el-form-item label="提示">
+          <el-row>模板短信推送，请将{}替换为您要推送的短信内容</el-row>
+        </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogMessage = false">取 消</el-button>
