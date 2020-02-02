@@ -1,6 +1,24 @@
 <template>
   <div class="FansList">
     <el-dialog
+      title="礼品详细信息"
+      class="dialog"
+      :visible.sync="showGoodsInfo"
+      width="30%">
+      <div class="row">
+        <p>名称:</p><span>{{goodsinfo.productName}}</span>
+      </div>
+      <!-- <div class="row">
+        <p>数量:</p><span>{{goodsinfo.productCount}}</span>
+      </div> -->
+      <div class="row">
+        <p>添加时间:</p><span>{{goodsinfo.gmtCreate}}</span>
+      </div>
+      <div class="row">
+        <p>图片:</p><span><img :src="goodsinfo.productImage" alt=""></span>
+      </div>
+    </el-dialog>
+    <el-dialog
       title="详细信息"
       class="dialog"
       :visible.sync="showInfo"
@@ -143,7 +161,12 @@
       </el-table-column>
       <el-table-column
         prop="productName"
-        label="领取礼品" width="150"/>
+        label="领取礼品" width="150">
+        <template slot-scope="scope">
+          <span>{{scope.row.productName}}</span>
+          <a style="margin-left: 10px" @click="productNameHandler(scope.row)">详情</a>
+        </template>
+      </el-table-column>
       <el-table-column
         prop="deliveryTime"
         label="领取时间"  width="150">
@@ -227,6 +250,8 @@ export default class FansList extends Vue {
   private merchantList: any = [];
   private dialogGroup = false;
   private showInfo = false;
+  private showGoodsInfo = false;
+  private goodsinfo = {};
   private info: any = {};
   private groupList = [];
   private ids: any = [];
@@ -282,6 +307,16 @@ export default class FansList extends Vue {
   }
   private handleSelectionChange(rowlist: any[]) {
     this.ids = rowlist;
+  }
+  private productNameHandler(row: any) {
+    net.base.getsponsorProductInfo({id: row.subscriberId}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.goodsinfo = data.data.data;
+        this.showGoodsInfo = true;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
   }
   private currentChange(page: number) {
     this.searchValue.current = page;

@@ -84,6 +84,9 @@ export async function getFanList(payload: any) {
 export async function getFansList(payload: any) {
   return await post(`/web/api/subscriber/getBySponsor`, payload);
 }
+export async function getsponsorProductInfo(payload: any) {
+  return await post(`/web/api/sponsorProduct/info`, payload);
+}
 
 /* 短信管理 */
 export async function getMessageList(payload: any) {
@@ -165,6 +168,7 @@ export default {
   addGroup,
   getFanList,
   getFansList,
+  getsponsorProductInfo,
   getMessageList,
   addMessageList,
   getTemplete,

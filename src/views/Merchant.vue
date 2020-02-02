@@ -49,8 +49,17 @@
           </el-table-column>
           <el-table-column
             prop="productCount"
-            label="数量"
+            label="总数量"
             width="100">
+          </el-table-column>
+          <el-table-column
+            label="已领取"
+            width="100">
+          <template slot-scope="scope">
+            <span :style="{color: scope.row.deliveryCount &&
+            scope.row.deliveryCount > scope.row.productCount ?
+            '#F56C6C' : '#606266'}">{{scope.row.deliveryCount || 0}}</span>
+          </template>
           </el-table-column>
           <el-table-column
         label="操作" width="100">
