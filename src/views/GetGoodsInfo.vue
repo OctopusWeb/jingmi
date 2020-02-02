@@ -221,7 +221,6 @@ export default class GetGoodsInfo extends Vue {
     net.base.getSponsorProduct({size: 500, current: 0, sponsorId: id || this.getUserinfo.sponsorId}).then((data: any) => {
       if (data.data.code === 200) {
         this.goodsAll = data.data.data.records;
-        console.log(this.goodsAll);
       } else {
         this.$message.error(data.data.msg);
       }
