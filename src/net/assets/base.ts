@@ -98,6 +98,9 @@ export async function addMessageList(payload: any) {
 export async function getTemplete(payload: any) {
   return await get(`/web/api/messageDelivery/templates`, payload);
 }
+export async function getSmsLog(payload: any) {
+  return await post(`/web/api/smsLog/statis`, payload);
+}
 
 /* 广告位管理 */
 export async function getSponsorPosterList(payload: any) {
@@ -172,6 +175,7 @@ export default {
   getMessageList,
   addMessageList,
   getTemplete,
+  getSmsLog,
   getSponsorProduct,
   addSponsorProduct,
   getAdvertisingList,

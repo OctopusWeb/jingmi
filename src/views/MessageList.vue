@@ -75,6 +75,12 @@
       <el-button type="primary" size="small" @click="getMessageList" v-if="getUserinfo.roleId === '1'">查询</el-button>
       <el-button type="primary" size="small" @click="createMessageHandler">新建推送任务</el-button>
     </el-form>
+    <div class="messageTotal">
+      <p>全部: <span>{{messageTotal.total}}</span></p>
+      <p>成功: <span>{{messageTotal.success}}</span></p>
+      <p>失败: <span>{{messageTotal.fail}}</span></p>
+      <p>未发送: <span>{{messageTotal.pre}}</span></p>
+    </div>
     <el-table
       :data="messageList.records"
       stripe
@@ -190,6 +196,17 @@
     margin-top: -30px;
     color: #909399;
   }
+  .messageTotal{
+    width: 100%;
+    float: left;
+    margin-left: 10px;
+    p{
+      font-size: 14px;
+      float: left;
+      margin-right: 20px;
+      color: #606266;
+    }
+  }
 }
 </style>
 
@@ -229,12 +246,19 @@ export default class MessageList extends Vue {
     current: 0,
     size: 10,
   };
+  private messageTotal = {
+    total: 0,
+    success: 0,
+    fail: 0,
+    pre: 0,
+  };
   get getUserinfo() {
     return this.$store.state.userInfo;
   }
   private mounted() {
     this.getMessageList();
     this.getMerchant();
+    this.getMessageTotal();
     if (this.getUserinfo.roleId === '2') {
       this.getFanList();
     }
@@ -278,6 +302,20 @@ export default class MessageList extends Vue {
   //     }
   //   });
   // }
+  private getMessageTotal() {
+    // console.log(this.getUserinfo);
+    // if (this.getUserinfo.roleId === '2') {
+    //   this.createValue.sponsorId = this.getUserinfo.sponsorId;
+    // }
+    const sponsorId = this.searchValue.sponsorId;
+    net.base.getSmsLog({sponsorId}).then((data: any) => {
+      if (data.data.code === 200) {
+        this.messageTotal = data.data.data;
+      } else {
+        this.$message.error(data.data.msg);
+      }
+    });
+  }
   private getFanList() {
     const data: any = {current: 0, size: 500};
     if (this.getUserinfo.roleId === '2') {
@@ -331,6 +369,7 @@ export default class MessageList extends Vue {
     });
   }
   private getMessageList() {
+    this.getMessageTotal();
     if (this.getUserinfo.roleId === '2') {
       this.searchValue.sponsorId = this.getUserinfo.sponsorId;
     }
