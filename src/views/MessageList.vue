@@ -85,14 +85,14 @@
       :data="messageList.records"
       stripe
       style="width: 100%">
-      <el-table-column
+      <!-- <el-table-column
         prop="id"
         label="短信流水号"
         width="150">
         <template slot-scope="scope">
           {{scope.row.deliveryNo || '无'}}
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column
         prop="recipientsVo"
         label="推送对象(用户/分组)">
