@@ -72,7 +72,18 @@
           :label="item.aliasName" :value="item.id"></el-option>
         </el-select>
       </el-form-item>
-      <el-button type="primary" size="small" @click="getMessageList" v-if="getUserinfo.roleId === '1'">查询</el-button>
+      <el-form-item label="发送时间">
+        <el-date-picker
+          @change="timechangeHandler"
+          v-model="time"
+          size="small"
+          type="daterange"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期">
+        </el-date-picker>
+      </el-form-item>
+      <el-button type="primary" size="small" @click="getMessageList">查询</el-button>
       <el-button type="primary" size="small" @click="createMessageHandler">新建推送任务</el-button>
     </el-form>
     <div class="messageTotal">
@@ -227,6 +238,7 @@ export default class MessageList extends Vue {
   private groupList = [];
   private templete = [];
   private templateid = '';
+  private time: any = [];
   private merchantList: any = {
     total: 0,
     records: [],
@@ -279,6 +291,34 @@ export default class MessageList extends Vue {
     this.getGroupList();
     this.getFanList();
   }
+  private timechangeHandler() {
+    if (this.time && this.time[0]) {
+      this.searchValue.startTime = this.format(this.time[0],'yyyy-MM-dd');
+      this.searchValue.endTime = this.format(this.time[1],'yyyy-MM-dd');
+    } else {
+      this.searchValue.startTime = undefined;
+      this.searchValue.endTime = undefined;
+    }
+  }
+  private format(data: Date, fmt: string){
+    const o: any = {
+      'M+': data.getMonth()+1,
+      'd+': data.getDate(),
+      'H+': data.getHours(),
+      'm+': data.getMinutes(),
+      's+': data.getSeconds(),
+      'S+': data.getMilliseconds()
+    };
+    if(/(y+)/.test(fmt)){
+      fmt=fmt.replace(RegExp.$1,(data.getFullYear()+"").substr(4-RegExp.$1.length));
+    }
+    for(var k in o){
+      if (new RegExp('(' + k +')').test(fmt)){
+        fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (('00' + o[k]).substr(String(o[k]).length)));
+      }
+    }
+    return fmt;
+  };
   private typeHandler() {
     this.createValue.recipientsVo.recipients = [];
   }
@@ -308,7 +348,9 @@ export default class MessageList extends Vue {
     //   this.createValue.sponsorId = this.getUserinfo.sponsorId;
     // }
     const sponsorId = this.searchValue.sponsorId;
-    net.base.getSmsLog({sponsorId}).then((data: any) => {
+    const startTime = this.searchValue.startTime;
+    const endTime = this.searchValue.endTime;
+    net.base.getSmsLog({sponsorId, startTime, endTime}).then((data: any) => {
       if (data.data.code === 200) {
         this.messageTotal = data.data.data;
       } else {
